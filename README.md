@@ -1,10 +1,11 @@
-# YAMS
-Yet Another MIPS Simulator
+# YAMS, a MIPS Simulator
+~~Yet another MIPS Simulator~~
 
+This is a MIPS simulator that implements a subset of the instruction set.
 
 ## Installation
 
-- For non-apple devices, just install packages in `requirements.txt`
+- For non-apple devices, just install the packages in `requirements.txt`
 
 ### Installing for apple sillicon macs
 
@@ -15,3 +16,4 @@ Yet Another MIPS Simulator
 - Install pyqt5 using `pip3 install pyqt5 --config-settings --confirm-license= --verbose`
 
 https://stackoverflow.com/a/73305306/2959990
+https://stackoverflow.com/a/74071222/2959990
