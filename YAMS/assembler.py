@@ -4,6 +4,41 @@ from .utils import multiple4_geq, string_numeric_to_int, normalize_hex_to_byte
 #from .instructions import
 from typing import Dict
 
+register_indices = {
+    "$zero": 0,
+    "$at": 1,
+    "$v0": 2,
+    "$v1": 3,
+    "$a0": 4,
+    "$a1": 5,
+    "$a2": 6,
+    "$a3": 7,
+    "$t0": 8,
+    "$t1": 9,
+    "$t2": 10,
+    "$t3": 11,
+    "$t4": 12,
+    "$t5": 13,
+    "$t6": 14,
+    "$t7": 15,
+    "$s0": 16,
+    "$s1": 17,
+    "$s2": 18,
+    "$s3": 19,
+    "$s4": 20,
+    "$s5": 21,
+    "$s6": 22,
+    "$s7": 23,
+    "$t8": 24,
+    "$t9": 25,
+    "$k0": 26,
+    "$k1": 27,
+    "$gp": 28,
+    "$sp": 29,
+    "$fp": 30,
+    "$ra": 31
+}
+
 
 class Assembler:
     def __init__(self, text_segment: TextSegment, data_segment: DataSegment):
@@ -13,7 +48,7 @@ class Assembler:
         # The symbol table holds the offset of data, relative to the data start address of data labels
         self.data_symbol_table: Dict[str, int] = {}
 
-        # The instruction address table holds the absolute address of labled instructions
+        # The instruction address table holds the absolute address of labeled instructions
         self.instruction_address_table: Dict[str, int] = {}
 
     def assemble(self):
@@ -54,11 +89,8 @@ class Assembler:
                 current_data_write_offset += 4
 
         # 2. Assemble pseudo-instructions and resolve labels
-        # The assembler will resolve any lable usage and/or pseudo-instructions
+        # The assembler will resolve any label usage and/or pseudo-instructions
         # It will continually run the assembly process until a fixed point is reached, which then it will terminate
-
-
-
         current_text_segment = self.text_segment
         n_iterations = 0
         max_iterations = len(list(current_text_segment.iter_entries()))
@@ -78,9 +110,9 @@ class Assembler:
         self.text_segment = new_text_segment
 
 
-    def _assemble_pseudo(self, text_segment):
+    def _assemble_pseudo(self, text_segment) -> TextSegment:
         """
-        Processes pseudoinstructions. This will create a new TextSegment that assembles the pseudoinstructions.
+        Processes pseudo-instructions. This will create a new TextSegment that assembles the pseudoinstructions.
         """
 
         new_ts = TextSegment()
@@ -94,6 +126,7 @@ class Assembler:
 
             if instruction.instruction == "li":
                 # li pseudoinstruction - load argument into target register
+                # This is assembled into: li -> lui, ori
                 target_register, immediate = instruction.arguments
                 hex_number_string = str(hex(string_numeric_to_int(immediate))).split("x")[1].rjust(8, "0")
 
@@ -111,7 +144,8 @@ class Assembler:
                 current_instruction_addr += 4
 
             elif instruction.instruction == "la":
-                # la pseudoinstruction (la target, address) - load address into target register
+                # la pseudo-instruction (la target, address) - load address into target register
+                # This is assembled into: la -> li -> lui, ori
                 target_register, address = instruction.arguments
                 if address in self.data_symbol_table:
                     address = str(self.data_symbol_table[address] + self.data_segment.starting_address)
@@ -125,7 +159,7 @@ class Assembler:
 
         return new_ts
 
-    def _substitute_labels(self, text_segment):
+    def _substitute_labels(self, text_segment) -> TextSegment:
         """
         This procedure substitutes in address in place of labels
 
@@ -141,10 +175,19 @@ class Assembler:
                 new_ts.set_label(instruction.label)
 
             if instruction.instruction in ("lw", "sw") and instruction.arguments[1] in self.data_symbol_table:
+                # lw/sw with label usage (sw $5, label)
+                # This is assembled into: la, lw/sw -> li, lw/sw -> lui, ori, lw/sw
                 target_register = instruction.arguments[0]
                 new_ts.insert(instruction="la", arguments=["$at", instruction.arguments[1]])
                 current_instruction_addr += 4
                 new_ts.insert(instruction=instruction.instruction, arguments=[target_register, f"0($at)"])
+                current_instruction_addr += 4
+
+            elif instruction.instruction == "j" and instruction.arguments[0] in self.instruction_address_table:
+                # j label instruction
+                # Substitute address instead of label
+                jump_addr = hex(self.instruction_address_table[instruction.arguments[0]])
+                new_ts.insert(instruction=instruction.instruction, arguments=[jump_addr])
                 current_instruction_addr += 4
 
             else:

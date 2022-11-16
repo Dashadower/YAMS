@@ -125,20 +125,6 @@ def preprocess(program_text: str) -> List[str]:
 
     return separated_lines
 
-
-def parse_rformat(line):
-    instruction = line.split()[0]
-    arguments = [arg.strip() for arg in " ".join(line.split()[1:]).split(",")]
-    assert len(arguments) == 3, f"R-format instruction must have 3 arguments, but found {len(arguments)}! ({line})"
-    rs = arguments[1]
-    rt = arguments[2]
-    rd = arguments[0]
-    return RFormat(instruction=instruction, rs=rs, rt=rt, rd=rd, shamt="0")
-
-def parse_iformat(line):
-    instruction = line.split()[0]
-    arguments = [arg.strip() for arg in " ".join(line.split()[1:]).split(",")]
-
 class Parser:
     """
     The Parser is a 3-state state machine.
