@@ -1,6 +1,6 @@
 from typing import Dict, List, Any, Tuple, Union
 from dataclasses import dataclass, field
-from collections import OrderedDict
+from .instructions import *
 import re
 
 comment_removed = re.compile("^.*?(?=#|$)")  # capture all characters before first '#'
@@ -17,65 +17,87 @@ class DataEntry:
 
 @dataclass
 class TextEntry:
-    content: str
+    instruction: str
+    arguments: List[str]
     label: str = field(default=None)
 
     def __str__(self):
-        return f"<TextEntry({self.label}) - {self.content}>"
+        return f"<TextEntry({self.label}) - {self.instruction}({', '.join(self.arguments)})>"
+
+    def __eq__(self, other: "TextEntry"):
+        return self.label == other.label and self.instruction == other.instruction and self.arguments == other.arguments
 
 
 class DataSegment:
     def __init__(self):
-        self.starting_address = None
-        self._labels: List[DataEntry] = []
+        self.starting_address: int = 0x10000000
+        self._entries: List[DataEntry] = []
         self._current_label = None
 
     def insert(self, data_type: str, content: str):
         if not self._current_label:
-            self._labels.append(DataEntry(data_type, content))
+            self._entries.append(DataEntry(data_type, content))
         else:
-            self._labels.append(DataEntry(data_type, content, label=self._current_label))
+            self._entries.append(DataEntry(data_type, content, label=self._current_label))
             self._current_label = None
 
     def set_label(self, label_name: str):
-        if label_name in self._labels:
+        if label_name in self._entries:
             raise Exception(f"Data segment label {label_name} already exists but is being reused!!")
 
         self._current_label = label_name
 
+    def iter_entries(self):
+        for entry in self._entries:
+            yield entry
+
     def __str__(self):
         ret = ""
-        ret += f"<DataSegment(addr={self.starting_address})>\n"
-        for entry in self._labels:
+        ret += f"<DataSegment(addr={hex(self.starting_address)})>\n"
+        for entry in self._entries:
             ret += f"    {entry}\n"
         return ret
 
 
 class TextSegment:
     def __init__(self):
-        self.starting_address = None
-        self._labels: List[TextEntry] = []
+        self.starting_address: int = 0x00400024
+        self._entries: List[TextEntry] = []
         self._current_label = None
 
-    def insert(self, content: str):
+    def insert(self, instruction: str, arguments: List[str]):
         if not self._current_label:
-            self._labels.append(TextEntry(content))
+            self._entries.append(TextEntry(instruction, arguments))
         else:
-            self._labels.append(TextEntry(content, label=self._current_label))
+            self._entries.append(TextEntry(instruction, arguments, label=self._current_label))
             self._current_label = None
 
     def set_label(self, label_name: str):
-        if label_name in self._labels:
+        if label_name in self._entries:
             raise Exception(f"Text segment label {label_name} already exists but is being reused!!")
 
         self._current_label = label_name
 
+    def iter_entries(self):
+        for entry in self._entries:
+            yield entry
+
     def __str__(self):
         ret = ""
-        ret += f"<TextSegment(addr={self.starting_address})>\n"
-        for entry in self._labels:
+        ret += f"<TextSegment(addr={hex(self.starting_address)})>\n"
+        for entry in self._entries:
             ret += f"    {entry}\n"
         return ret
+
+    def __eq__(self, other: "TextSegment"):
+        if len(self._entries) != len(other._entries):
+            return False
+        for index, entry in enumerate(self._entries):
+            if other._entries[index] == entry:
+                continue
+            return False
+        return self.starting_address == other.starting_address
+
 
 def preprocess(program_text: str) -> List[str]:
     separated_lines = []
@@ -86,10 +108,12 @@ def preprocess(program_text: str) -> List[str]:
 
         # 1. Remove any comments (# comment strings)
         line = comment_removed.findall(line)[0]
+        if not line:
+            continue
 
         # 2. Separate lines where identifiers (e.g: main:) are on the same line as code.
         #    For example, `main: addi $2, $0, 1` would be separated into `main:` and `addi $2, $0, 1`
-        tokens = line.split(" ")
+        tokens = line.split()
         if tokens[0].endswith(":"):  # check if the first word of the line is an identifier
             segments = line.split(":")
             if len(segments) > 1:  # If they are written on the same line, separate them
@@ -102,12 +126,25 @@ def preprocess(program_text: str) -> List[str]:
     return separated_lines
 
 
+def parse_rformat(line):
+    instruction = line.split()[0]
+    arguments = [arg.strip() for arg in " ".join(line.split()[1:]).split(",")]
+    assert len(arguments) == 3, f"R-format instruction must have 3 arguments, but found {len(arguments)}! ({line})"
+    rs = arguments[1]
+    rt = arguments[2]
+    rd = arguments[0]
+    return RFormat(instruction=instruction, rs=rs, rt=rt, rd=rd, shamt="0")
+
+def parse_iformat(line):
+    instruction = line.split()[0]
+    arguments = [arg.strip() for arg in " ".join(line.split()[1:]).split(",")]
+
 class Parser:
     """
     The Parser is a 3-state state machine.
 
     - Initial state: only allows `.data`, `.text`, and `.globl` directives.
-        - Entry: before reading any lines, immediately after parser initialization
+        - Entry: before reading any lines; initialization state
         - Transitions:
             - Data state: when `.data` directive is observed
             - Text state: when `.text` directive is observed
@@ -117,13 +154,13 @@ class Parser:
         - Transitions:
             - Text state: when `.text` directive is observed
 
-    - Text state: Allows (unlabeled) arbitrary command declarations.
+    - Text state: Allows (un)labeled arbitrary command declarations.
         - Entry: By state transition from another state
         - Transitions:
             - Data state: when `.data` directive is observed
     """
     def __init__(self, program_text):
-        self.program_lines = preprocess(program_text)
+        self.program_lines = program_text
         self.line_index = 0  # line index to retrieve next
 
         # These two classes hold the results of the parsed program
@@ -145,11 +182,17 @@ class Parser:
         """
         This should be the entry point of the parser
         """
+
+        # 1. preprocess(remove comments
+        self.program_lines = preprocess(self.program_lines)
+
+        # 2. Separate data/text and map to labels
         while self.program_lines:
             line = self.program_lines.pop(0)
             self.current_state(line)
 
         return self.data_segment, self.text_segment
+
 
     def initialization_state(self, line: str):
         if not line:
@@ -157,7 +200,7 @@ class Parser:
 
         tokens = line.split()
         n_tokens = len(tokens)
-        head = tokens[0]
+        head = tokens[0].strip()
 
         if head == ".data":
             if n_tokens == 2:  # .data <addr> is specified
@@ -178,7 +221,7 @@ class Parser:
 
         tokens = line.split()
         n_tokens = len(tokens)
-        head = tokens[0]
+        head = tokens[0].strip()
 
         if head.endswith(":"):  # label:
             # Label is defined. Set label as the text up to, but not including the column
@@ -186,7 +229,7 @@ class Parser:
 
         elif head == ".text":
             if n_tokens == 2:  # .data <addr> is specified
-                self.text_segment.starting_address = head[1]
+                self.text_segment.starting_address = int(tokens[1].strip())
             self.current_state = self.text_state
 
         elif head == ".globl":
@@ -213,7 +256,7 @@ class Parser:
 
         tokens = line.split()
         n_tokens = len(tokens)
-        head = tokens[0]
+        head = tokens[0].strip()
 
         if head.endswith(":"):  # label:
             # Label is defined. Set label as the text up to, but not including the column
@@ -221,11 +264,12 @@ class Parser:
 
         elif head == ".data":
             if n_tokens == 2:  # .data <addr> is specified
-                self.data_segment.starting_address = head[1]
+                self.data_segment.starting_address = int(tokens[1].strip())
             self.current_state = self.data_state
 
         elif head == ".globl":  # global declarations can be ignored for now
             pass
 
         else:
-            self.text_segment.insert(" ".join(tokens))
+            arguments = [arg.strip() for arg in "".join(tokens[1:]).split(",")]
+            self.text_segment.insert(head, arguments)

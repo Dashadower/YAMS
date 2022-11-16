@@ -7,5 +7,7 @@
 		la $a0, message
 		syscall
 
+        lw $2, 0x10010002
+
 		li $v0, 10
 		syscall
