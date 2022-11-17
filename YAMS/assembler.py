@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from .parser import TextSegment, DataSegment
 from .utils import multiple4_geq, string_numeric_to_int, normalize_hex_to_byte
-#from .instructions import
 from typing import Dict
+import re
+
+register_name_pattern = re.compile(r"\$[a-z\d]+")
 
 register_indices = {
     "$zero": 0,
@@ -100,6 +102,7 @@ class Assembler:
             self.instruction_address_table = {}
             new_text_segment = self._assemble_pseudo(current_text_segment)
             new_text_segment = self._substitute_labels(new_text_segment)
+            new_text_segment = self._substitute_register_names(new_text_segment)
 
             if new_text_segment == current_text_segment:
                 break
@@ -123,6 +126,8 @@ class Assembler:
             if instruction.label:
                 new_ts.set_label(instruction.label)
                 self.instruction_address_table[instruction.label] = current_instruction_addr
+
+            new_ts.set_assembler_remark(instruction.assembler_remark)
 
             if instruction.instruction == "li":
                 # li pseudoinstruction - load argument into target register
@@ -174,6 +179,8 @@ class Assembler:
             if instruction.label:
                 new_ts.set_label(instruction.label)
 
+            new_ts.set_assembler_remark(instruction.assembler_remark)
+
             if instruction.instruction in ("lw", "sw") and instruction.arguments[1] in self.data_symbol_table:
                 # lw/sw with label usage (sw $5, label)
                 # This is assembled into: la, lw/sw -> li, lw/sw -> lui, ori, lw/sw
@@ -195,6 +202,41 @@ class Assembler:
                 current_instruction_addr += 4
 
         return new_ts
+
+    def _substitute_register_names(self, text_segment):
+        new_ts = TextSegment()
+
+        current_instruction_addr = text_segment.starting_address
+
+        for instruction in text_segment.iter_entries():
+            if instruction.label:
+                new_ts.set_label(instruction.label)
+
+            new_ts.set_assembler_remark(instruction.assembler_remark)
+
+            new_argument_list = []
+            for argument in instruction.arguments:
+                register_names = list(register_name_pattern.findall(argument))
+                assert len(register_names) <= 1, f"Error while assembling instruction - Each argument of instruction must contain at most 1 register: {instruction}"
+                if not register_names:
+                    new_argument_list.append(argument)
+                else:
+                    register_name: str = register_names[0]
+                    if register_name in register_indices:
+                        new_argument_list.append(argument.replace(register_name, f"${register_indices[register_name]}"))
+                    else:
+                        register_index = register_name.split("$")[1]
+                        assert register_index.isnumeric(), f"Error while assembling instruction {instruction} - Unknown register {register_name}"
+                        assert 0 <= int(register_index) <= 31, f"Error while assembling instruction {instruction} - Register ${register_index} is out of bounds."
+                        new_argument_list.append(argument)
+
+            new_ts.insert(instruction=instruction.instruction, arguments=new_argument_list)
+            current_instruction_addr += 4
+
+        return new_ts
+
+
+
 
 
 

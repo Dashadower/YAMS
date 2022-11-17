@@ -20,9 +20,10 @@ class TextEntry:
     instruction: str
     arguments: List[str]
     label: str = field(default=None)
+    assembler_remark: str = field(default="")
 
     def __str__(self):
-        return f"<TextEntry({self.label}) - {self.instruction}({', '.join(self.arguments)})>"
+        return f"label: {self.label} - {self.instruction} {', '.join(self.arguments)}".ljust(50) + f"{'  # ' + self.assembler_remark if self.assembler_remark else ''}"
 
     def __eq__(self, other: "TextEntry"):
         return self.label == other.label and self.instruction == other.instruction and self.arguments == other.arguments
@@ -64,19 +65,25 @@ class TextSegment:
         self.starting_address: int = 0x00400024
         self._entries: List[TextEntry] = []
         self._current_label = None
+        self._current_assembler_remark = ""
 
     def insert(self, instruction: str, arguments: List[str]):
         if not self._current_label:
-            self._entries.append(TextEntry(instruction, arguments))
+            self._entries.append(TextEntry(instruction, arguments, assembler_remark=self._current_assembler_remark))
         else:
-            self._entries.append(TextEntry(instruction, arguments, label=self._current_label))
+            self._entries.append(TextEntry(instruction, arguments, label=self._current_label, assembler_remark=self._current_assembler_remark))
             self._current_label = None
+
+        self._current_assembler_remark = ""
 
     def set_label(self, label_name: str):
         if label_name in self._entries:
             raise Exception(f"Text segment label {label_name} already exists but is being reused!!")
 
         self._current_label = label_name
+
+    def set_assembler_remark(self, assembler_remark: str):
+        self._current_assembler_remark = assembler_remark
 
     def iter_entries(self):
         for entry in self._entries:
@@ -173,14 +180,16 @@ class Parser:
         self.program_lines = preprocess(self.program_lines)
 
         # 2. Separate data/text and map to labels
+        line_index = 0
         while self.program_lines:
             line = self.program_lines.pop(0)
-            self.current_state(line)
+            self.current_state(line, line_index)
+            line_index += 1
 
         return self.data_segment, self.text_segment
 
 
-    def initialization_state(self, line: str):
+    def initialization_state(self, line: str, line_index: int):
         if not line:
             return
 
@@ -201,7 +210,7 @@ class Parser:
         else:
             raise Exception(f"Assembly file did not define a .data or .text segment and instead called '{head}' first.")
 
-    def data_state(self, line: str):
+    def data_state(self, line: str, line_index: int):
         if not line:
             return
 
@@ -236,7 +245,7 @@ class Parser:
 
             self.data_segment.insert(head, data)
 
-    def text_state(self, line: str):
+    def text_state(self, line: str, line_index: int):
         if not line:
             return
 
@@ -257,5 +266,6 @@ class Parser:
             pass
 
         else:
+            self.text_segment.set_assembler_remark(f"L{line_index}: {line}")
             arguments = [arg.strip() for arg in "".join(tokens[1:]).split(",")]
             self.text_segment.insert(head, arguments)
