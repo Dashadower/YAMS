@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from dataclasses import
 if TYPE_CHECKING:
     from .registers import MainRegister, IFIDRegister, IDEXREgister, EXMEMRegister, MEMWBRegister
 
@@ -9,7 +8,8 @@ class PipelineSnapshot:
 
 class PipelineCoordinator:
     def __init__(self):
-        self.IF_pc = None
+        self.IF_PCCounter = None
+        self.IFC_PCSrcMUX = None
         self.IF_instruction_memory = None
         self.IFID_register: IFIDRegister = None
 
