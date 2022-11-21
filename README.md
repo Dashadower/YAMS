@@ -23,7 +23,16 @@ https://stackoverflow.com/a/74071222/2959990
 
 
 ## Pseudoinstruction support
+
+The YAMS assembler iteratively assembles the instructions, until a fixed point is reached. This is done by substituting
+instructions(or even pseudo-instructions) inplace of pseudo-instructions, and replacing any labels with its actual
+allocated address.
+
 - `li rdest, immediate`: load 32-bit `immediate` value into register `rdest`
+  - assembled into: `li -> lui, ori`
 - `la rdest, label`: load address of data label `label` into register `rdest`
+  - assembled into: `la -> li -> lui, ori`
 - `lw rdest, label`: load word data in label `label` into register `rdest`
-- `sw rdest, label`: store word data in register `rdest` into data address pointed by label `label`  
+  - assembled into: `lw/sw -> li, lw/sw -> lui, ori, lw/sw`
+- `sw rdest, label`: store word data in register `rdest` into data address pointed by label `label` 
+- `j label`: jump to instruction address pointed by label `label` 
