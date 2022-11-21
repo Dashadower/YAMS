@@ -1,6 +1,7 @@
 .data
+    .byte 0, 0, 1
     .word 12345
-    .word 0xffffffff
+    .word 0x1234ffff
 	message: .asciiz "Hello World! \n"
 .text
 	main: li $v0, 4

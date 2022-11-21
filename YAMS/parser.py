@@ -188,7 +188,6 @@ class Parser:
 
         return self.data_segment, self.text_segment
 
-
     def initialization_state(self, line: str, line_index: int):
         if not line:
             return

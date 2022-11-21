@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, TYPE_CHECKING
 from .opcodes import instruction2opcode_funct
-from .utils import string_numeric_to_int
+from .utils import string_numeric_to_decimal
 import re
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class InstructionMemory:
                 rd = int(entry.arguments[0][1:])
                 rt = int(entry.arguments[1][1:])
                 rs = 0
-                shamt = string_numeric_to_int(entry.arguments[2])
+                shamt = string_numeric_to_decimal(entry.arguments[2])
             else:
                 rd, rs, rt = [int(arg[1:]) for arg in entry.arguments]
                 shamt = 0
@@ -75,22 +75,22 @@ class InstructionMemory:
                 rt = int(entry.arguments[0][1:])
 
                 # parse out offset($rs) format
-                immediate = string_numeric_to_int(self.iformat_offset_pattern.findall(entry.arguments[1])[0])
+                immediate = string_numeric_to_decimal(self.iformat_offset_pattern.findall(entry.arguments[1])[0])
                 rs = int(self.iformat_offset_rs_register_pattern.findall(entry.arguments[1])[0])
             elif entry.instruction == "lui":
                 # rs source register of lui is always zero
                 rs = 0
                 rt = int(entry.arguments[0][1:])
-                immediate = string_numeric_to_int(entry.arguments[1])
+                immediate = string_numeric_to_decimal(entry.arguments[1])
             else:
                 rt = int(entry.arguments[0][1:])
                 rs = int(entry.arguments[1][1:])
-                immediate = string_numeric_to_int(entry.arguments[2])
+                immediate = string_numeric_to_decimal(entry.arguments[2])
 
             return IFormat(opcode=opcode, funct=funct, rs=rs, rt=rt, immediate=immediate)
 
         elif entry.instruction in jformat_instructions:
-            addr = string_numeric_to_int(entry.arguments[0])
+            addr = string_numeric_to_decimal(entry.arguments[0])
             return JFormat(opcode=opcode, funct=funct, addr=addr)
 
         elif entry.instruction in special_format_instructions:

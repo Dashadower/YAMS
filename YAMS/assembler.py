@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .parser import TextSegment, DataSegment
-from .utils import multiple4_geq, string_numeric_to_int, normalize_hex_to_byte
+from .utils import multiple4_geq, string_numeric_to_decimal
 from typing import Dict
 import re
 
@@ -133,9 +133,9 @@ class Assembler:
                 # li pseudoinstruction - load argument into target register
                 # This is assembled into: li -> lui, ori
                 target_register, immediate = instruction.arguments
-                hex_number_string = str(hex(string_numeric_to_int(immediate))).split("x")[1].rjust(8, "0")
+                hex_number_string = str(hex(string_numeric_to_decimal(immediate))).split("x")[1].rjust(8, "0")
 
-                immediate = string_numeric_to_int(immediate)  # decimal int of immediate
+                immediate = string_numeric_to_decimal(immediate)  # decimal int of immediate
                 ori_source_register = "$0"
                 if immediate > 0xfff:  # if number is bigger than 0xfff, do lui first
                     new_ts.insert(instruction="lui", arguments=["$at", f"0x{hex_number_string[0:4]}"])
