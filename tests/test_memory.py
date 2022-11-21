@@ -24,6 +24,6 @@ with open("asm/example1.s") as f:
 
     print("MEMORY CONTENTS")
 
-    print(mem)
+    #print(mem)
     mem.print_wordview()
 
