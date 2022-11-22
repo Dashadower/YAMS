@@ -13,7 +13,7 @@
   - update: if `IF.Flush == 1`, return `NOP`, else return instruction at `PCCounter.value`
 - PC/Branch MUX `PCSrcMUX`
   - determines whether PC comes from branch target or PC + 4
-  - update: if `MEM.BranchAND == 1` then value is `EXMEMRegister.BranchAddress` else `IF.PC4Adder.value`
+  - update: if `MEM.BranchAND == 1` then value is `EXMEMRegister.BranchAddress` else if `Control.Jump` then value is `JaddrCalc.value` else  `IF.PC4Adder.value`
 
 ### IF/ID Register
 - PC
@@ -34,12 +34,25 @@
 - Immediate sign extender `ImmediateSignExtender`
   - update: get immediate value from `IF/IDRegister.instruction`
 - Main register `MainRegister`
-  - rising edge:
-    - If `RegWrite == 1` then write value of `MemtoReg` to register `RegDst`
+  - rising edge: If `RegWrite == 1` then write value of `MemtoReg` to register `RegDst`s
 - Branch target compare equal `BranchEqualCMP`
   - update: compute `MainRegister.ReadValue1 == MainRegister.Readvalue2`
+- Branch target compare ForwardA MUX `BranchCMPForwardAMUX`
+  - register read value
+  - value of ALU
+  - value of memory read
+- Branch target compare ForwardB MUX `BranchCMPForwardBMUX`
+  - register read value
+  - value of ALU
+  - value of memory read
 - Branch Equal AND: `BranchEqualAND`
   - update: set `IF.Flush` to `Control.Branch AND BranchEqualCMP.value`
+- PCUpper4bitSelector `PCUpper4bitSelector`
+  - Selects the upper 4 bits of PC + 4 (`IF/IDRegister.PC`[31~28])
+- Jump address shift left 2 `JaddrSLL2`
+  - Selects [25~0] bits of the `IF/IDRegister.instruction`(jformat), performs shift left 2 bits
+- Jump address calculate `JaddrCalc`
+  - Calculates jump address `f"0b{PCUpper4bitSelector.value}{JaddrSLL2.value}00"`
 
 ### ID/EX Register
 
@@ -79,3 +92,32 @@
    1. Update all components except for hazard detector
    2. Update Hazard Controller, which overwrites some signals
 7. Update IF stage
+
+
+## Sharp bits
+- load-use hazard for beq requires *2 stalls*. (`lw $t2, 0($t1); beq $t2, $t0, main`)
+- Jump address calculation is performed at ID
+
+
+## Stall strategies
+- load-use stall
+  - after a load instruction is performed:
+    - if following instruction uses target register, stall 1 cycle
+      - `if IDEXRegister.control_MemRead == 1 && IDEXRegister.Rt == (IFIDRegister.Rt or IFIDRegister.Rs)`
+        - set IFID to NOP and zero control signals
+    - if a conditional branch instruction uses target register, stall **2** cycles
+      - `if IDEXRegister.control_MemRead == 1 && IDEXRegister.Rt == (IFIDRegister.Rt or IFIDRegister.Rs) && IFIDRegister has instruction beq`
+        - set IFID to successive NOP 1 (stall and stall 1 succeeding cycle) and zero control signals
+- branch taken stall(flush)
+  - if `BranchEqualAND == 1`, set flush to 1, which sets IF register to NOP
+- special NOP
+  - set IFID to NOP and zero control signals
+
+
+
+## Special internal instruction
+This instruction is used only internally for resolving lw-beq hazards
+- successive NOP
+  - jformat with op: 19
+  - Upon decoding, stall for `immediate` cycles
+  - semantically equivalent to `immediate` amount of NOPs
