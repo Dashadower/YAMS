@@ -96,7 +96,7 @@ class EXMEMRegister(PipelineComponent):
         pass
 
 
-class MEMWBRegister:
+class MEMWBRegister(PipelineComponent):
     def __init__(self):
         self.control_memtoreg = None
         self.control_regwrite = None

@@ -25,6 +25,8 @@
   - update: Return all control signals given instruction in `IF/IDRegister.instruction`
 - Control/Zero Mux `ControlZeroMUX`
   - update: if MUX value is 0, return 0 for all control signals, else forward `Control`'s signals.
+- Set Control to zero OR `ControlZeroSetOR`
+  - update: value is `Hazard.IDFlush | Control.IDFlush`
 - Branch, PC Adder `BranchPCAdder`
   - update: calculate `IF/IDRegister.PC` + `ImmediateSLL2.value`
 - Immediate shift left 2 `ImmediateSLL2`
@@ -42,30 +44,31 @@
 ### ID/EX Register
 
 ### EX
-- ForwardA MUX
+- ForwardA MUX `ForwardAMUX`
   - update: see forward MUX documentations
-- ForwardB/ALUSrc MUX
+- ForwardB/ALUSrc MUX `ForwardBMUX`
   - update: see forward MUX documentations
-- ALU Control
+- ALU Control `ALUControl`
   - given `ID/EXRegister.Funct` and `Control.ALUOp`, return ALU operation code
-- ALU
+- ALU `ALU`
   - given `ForwardA.value`, `ForwardB.value`, and `ALUControl.value` compute `zero` and `result`
-- Forwarding unit
+- Forwarding unit `ForwardingUnit`
   - update: given `ID/EXRegister.rs, ID/EXRegister.rt, , EX/MEMRegister.rd` return `ForwardA.value` and `ForwardB.value`
-- RegDst MUX (Rt/Rd register write location)
+- RegDst MUX (Rt/Rd register write location) `RegDstMUX`
   - update: given `Control.RegDst, ID/EXRegister.rt, ID/EXRegister.rd`, return value selected by `Control.RegDst`
 
 ### EX/MEM Register
 
 ### MEM
-- Memory
+- Memory `Memory`
   - rising edge: If `EX/MEMRegister.MemWrite == 1`, write `EX/MEMRegister.ReadData` into address `EX/MEMRegister.ALUResult`
 ### MEM/WB Register
 
 ### WB
+- Mem2Reg MUX `Mem2RegMUX`
+  - update: If `MEM/WBRegister.Mem2Reg == 0` set `MEM/WBRegister.ALUResult`, elif `MEM/WBRegister.Mem2Reg == 1` set `Memory.ReadData`
 
-
-
+  
 ## Order of updating components
 1. WriteBack WB to Main Register if `RegWrite`
 2. Write data to memory if `MemWrite`
