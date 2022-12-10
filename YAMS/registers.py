@@ -6,6 +6,9 @@ class MainRegister(PipelineComponent):
     def __init__(self):
         self._register = [0] * 32
 
+        self.read_value1 = None
+        self.read_value2 = None
+
     def _write(self, register_index, value):
         """
         Internal method to write a value to a given register index. May only be called on rising edge.
@@ -31,8 +34,11 @@ class IFIDRegister(PipelineComponent):
         self.instruction = None
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        self.pc = pipeline_c.IF_pc
-        self.instruction = pipeline_c.IF_instruction_memory
+        if pipeline_c.ID_HazardDetector.IFIDWrite:
+            self.pc = pipeline_c.IF_PC4Adder.result
+            self.instruction = pipeline_c.IF_instruction_memory
+        else:  # if IF/IDWrite is 0, keep the contents of the register
+            pass
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -40,18 +46,18 @@ class IFIDRegister(PipelineComponent):
 class IDEXREgister(PipelineComponent):
     def __init__(self):
         # WB control signals
-        self.control_memtoreg = None
-        self.control_regwrite = None
+        self.control_MemtoReg = None
+        self.control_RegWrite = None
 
         # MEM control signals
-        self.control_branch = None
-        self.control_memread = None
-        self.control_memwrite = None
+        self.control_Branch = None
+        self.control_MemRead = None
+        self.control_MemWrite = None
 
         # EX control signals
-        self.control_regdst = None
-        self.control_aluop = None
-        self.control_alusrc = None
+        self.control_RegDst = None
+        self.control_ALUOp = None
+        self.control_ALUSrc = None
 
         self.pc = None
         self.read_data1 = None
@@ -61,6 +67,20 @@ class IDEXREgister(PipelineComponent):
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
 
         control_out = pipeline_c.ID_control
+
+        # WB control signals
+        self.control_MemtoReg = control_out.MemtoReg
+        self.control_RegWrite = control_out.RegWrite
+
+        # MEM control signals
+        self.control_Branch = control_out.Branch
+        self.control_MemRead = control_out.MemRead
+        self.control_MemWrite = control_out.MemWrite
+
+        # EX control signals
+        self.control_RegDst = control_out.RegDst
+        self.control_ALUOp = control_out.ALUOp
+        self.control_ALUSrc = control_out.ALUSrc
 
         self.pc = pipeline_c.IFID_register.pc
         self.read_data1 = pipeline_c.ID_main_register.readdata_1
@@ -73,24 +93,38 @@ class IDEXREgister(PipelineComponent):
 class EXMEMRegister(PipelineComponent):
     def __init__(self):
         # WB control signals
-        self.control_memtoreg = None
-        self.control_regwrite = None
+        self.control_MemtoReg = None
+        self.control_RegWrite = None
 
         # MEM control signals
-        self.control_branch = None
-        self.control_memread = None
-        self.control_memwrite = None
+        self.control_MemRead = None
+        self.control_MemWrite = None
 
-        self.pc = None
         self.alu_zero = None
         self.alu_result = None
         self.read_data2 = None
 
+        self.immediate = None
+
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        self.pc = None
+        # WB control signals
+        self.control_MemtoReg = pipeline_c.IDEX_register.control_MemtoReg
+        self.control_RegWrite = pipeline_c.IDEX_register.control_RegWrite
+
+        # MEM control signals
+        self.control_MemRead = pipeline_c.IDEX_register.control_MemRead
+        self.control_MemWrite = pipeline_c.IDEX_register.control_MemWrite
+
+        # ALU results
         self.alu_zero = pipeline_c.EX_ALU.zero
         self.alu_result = pipeline_c.EX_ALU.result
-        self.read_data2 = pipeline_c.IDEX_register.read_data2
+
+        # Register read data
+        # With forwarding, this should be the result of ForwardB's output
+        #self.read_data2 = pipeline_c.IDEX_register.read_data2
+        self.read_data2 = pipeline_c.EX_ForwardBMUX.value
+
+        self.immediate = pipeline_c.IDEX_register.immediate
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -98,7 +132,22 @@ class EXMEMRegister(PipelineComponent):
 
 class MEMWBRegister(PipelineComponent):
     def __init__(self):
-        self.control_memtoreg = None
-        self.control_regwrite = None
+        self.control_MemtoReg = None
+        self.control_RegWrite = None
+
+        self.memory_read_result = None
         self.alu_result = None
-        self.writeback_reg_dst = None
+
+        self.immediate = None
+
+    def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
+        self.control_MemtoReg = pipeline_c.EXMEM_register.control_MemtoReg
+        self.control_RegWrite = pipeline_c.EXMEM_register.control_RegWrite
+
+        self.memory_read_result = pipeline_c.MEM_Memory.read_value
+        self.alu_result = pipeline_c.EXMEM_register.alu_result
+
+        self.immediate = pipeline_c.EXMEM_register.immediate
+
+    def update(self, pipeline_c: "PipelineCoordinator") -> None:
+        pass

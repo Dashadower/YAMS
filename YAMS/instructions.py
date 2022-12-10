@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, TYPE_CHECKING
-from .opcodes import instruction2opcode_funct
-from .utils import string_numeric_to_decimal
+from .opcodes import instruction2opcode_funct, op, op0_funct
+from .utils import string_numeric_to_decimal, decimal2bin, zero_extend_binary
 import re
 
 if TYPE_CHECKING:
@@ -12,6 +12,17 @@ class Instruction:
     opcode: int
     funct: int
 
+    def to_binary(self) -> str:
+        raise NotImplementedError()
+
+    def get_instruction_name(self) -> str:
+        op_index = op[self.opcode]
+        if isinstance(op_index, str):
+            return op_index
+
+        assert self.opcode == 0, "For funct field evaluation, opcode must be zero"
+        return op0_funct[self.funct]
+
 
 @dataclass
 class RFormat(Instruction):
@@ -20,6 +31,14 @@ class RFormat(Instruction):
     rd: int
     shamt: int
 
+    def to_binary(self) -> str:
+        return (zero_extend_binary(decimal2bin(self.opcode), 6) +
+        zero_extend_binary(decimal2bin(self.rs), 5) +
+        zero_extend_binary(decimal2bin(self.rt), 5) +
+        zero_extend_binary(decimal2bin(self.rd), 5) +
+        zero_extend_binary(decimal2bin(self.shamt), 5) +
+        zero_extend_binary(decimal2bin(self.funct), 6))
+
 
 @dataclass
 class IFormat(Instruction):
@@ -27,16 +46,26 @@ class IFormat(Instruction):
     rt: int
     immediate: int
 
+    def to_binary(self) -> str:
+        return (zero_extend_binary(decimal2bin(self.opcode), 6) +
+                zero_extend_binary(decimal2bin(self.rs), 5) +
+                zero_extend_binary(decimal2bin(self.rt), 5) +
+                zero_extend_binary(decimal2bin(self.immediate), 16))
+
 
 @dataclass
 class JFormat(Instruction):
     addr: int
 
+    def to_binary(self) -> str:
+        return (zero_extend_binary(decimal2bin(self.opcode), 6) +
+                zero_extend_binary(decimal2bin(self.addr), 26))
+
 
 class SpecialFormat(Instruction):
     pass
 
-class InstructionMemory:
+class InstructionMemoryHandler:
     def __init__(self):
         self.starting_addr: int = None
         self._instruction_memory: Dict[int, Instruction] = {}
@@ -96,6 +125,9 @@ class InstructionMemory:
         elif entry.instruction in special_format_instructions:
             return SpecialFormat(opcode=opcode, funct=funct)
 
+
+    def fetch_instruction(self, addr: int) -> Instruction:
+        return self._instruction_memory[addr]
 
 rformat_instructions = [
     "add",

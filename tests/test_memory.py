@@ -1,7 +1,7 @@
 
 from YAMS.parser import Parser
 from YAMS.assembler import Assembler
-from YAMS.instructions import InstructionMemory
+from YAMS.instructions import InstructionMemoryHandler
 from YAMS.memory import Memory
 
 with open("asm/example1.s") as f:
@@ -12,7 +12,7 @@ with open("asm/example1.s") as f:
     print("AFTER ASSEMBLING")
     print(assembler.text_segment)
 
-    im = InstructionMemory()
+    im = InstructionMemoryHandler()
     im.load_instructions(assembler.text_segment)
 
     for addr, op in im._instruction_memory.items():

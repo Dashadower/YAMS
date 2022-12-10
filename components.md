@@ -10,10 +10,10 @@
   - update: value of `PCCounter` + 4
 - Instruction Memory `InstructionMemory`
   - Fetches instruction from PC
-  - update: if `IF.Flush == 1`, return `NOP`, else return instruction at `PCCounter.value`
+  - update: if `ID.BranchEqualAND.(IF.Flush) == 1`, return `NOP`, else return instruction at `PCCounter.value`
 - PC/Branch MUX `PCSrcMUX`
   - determines whether PC comes from branch target or PC + 4
-  - update: if `MEM.BranchAND == 1` then value is `EXMEMRegister.BranchAddress` else if `Control.Jump` then value is `JaddrCalc.value` else  `IF.PC4Adder.value`
+  - update: if `ID.BranchEqualAND == 1` then value is `ID.BranchPCAdder` else if `Control.Jump` then value is `JaddrCalc.value` else  `IF.PC4Adder.value`
 
 ### IF/ID Register
 - PC
@@ -26,7 +26,7 @@
 - Control/Zero Mux `ControlZeroMUX`
   - update: if MUX value is 0, return 0 for all control signals, else forward `Control`'s signals.
 - Set Control to zero OR `ControlZeroSetOR`
-  - update: value is `Hazard.IDFlush | Control.IDFlush`
+  - update: value is `Hazard.IDFlush | instruction is NOP`
 - Branch, PC Adder `BranchPCAdder`
   - update: calculate `IF/IDRegister.PC` + `ImmediateSLL2.value`
 - Immediate shift left 2 `ImmediateSLL2`
@@ -113,6 +113,14 @@
 - special NOP
   - set IFID to NOP and zero control signals
 
+## Stall vs Flush
+- Stall - re-run the instruction because of dependency: 
+  - Force write-related control signals to 0
+  - Set PCWrite and IFWrite HAZARD control signals to 0
+- Flush - used when branch is taken:
+  - Set IF.Flush control signal to 0, which sets entire Instruction segemnt if IFID register to zero
+  - Zero all the control signals
+  - Update the PC to use branch address
 
 
 ## Special internal instruction
