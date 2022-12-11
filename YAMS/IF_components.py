@@ -1,29 +1,36 @@
 from .pipeline_component import PipelineComponent
-from .instructions import InstructionMemoryHandler, Instruction
-
+from .instructions import InstructionMemoryHandler, Instruction, SpecialFormat
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .pipeline import PipelineCoordinator
 
 class PCSrcMux(PipelineComponent):
     def __init__(self):
-        self.pcsrc: int = None
+        self.pc_out: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        self.pcsrc = pipeline_c.EX_branch_AND.value
+        pass
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         # If branch is taken, change to branch target address
         if pipeline_c.ID_BranchEqualAND.value:
-            self.pcsrc = pipeline_c.ID_BranchPCAdder.value
+            self.pc_out = pipeline_c.ID_BranchPCAdder.value
 
+        # If jump, jump to targe address
         elif pipeline_c.ID_Control.Jump:
-            self.pcsrc = pipeline_c.ID_JAddrCalc
+            self.pc_out = pipeline_c.ID_JaddrCalc.value
+
+        else:
+            self.pc_out = pipeline_c.IF_PC4Adder.result
+
 
 class PCCounter(PipelineComponent):
     def __init__(self):
-        self.current_pc: int = None
+        self.current_pc: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.ID_HazardDetector.PCWrite == 1:
-            self.current_pc = pipeline_c.IFC_PCSrcMUX.pcsrc
+            self.current_pc = pipeline_c.IF_PCSrcMUX.pc_out
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -31,7 +38,7 @@ class PCCounter(PipelineComponent):
 
 class PC4Adder(PipelineComponent):
     def __init__(self):
-        self.result = None
+        self.result: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         self.update(pipeline_c)
@@ -45,7 +52,7 @@ class PC4Adder(PipelineComponent):
 class InstructionMemory(PipelineComponent):
     def __init__(self, instruction_handler: InstructionMemoryHandler):
         self.im_handler = instruction_handler
-        self.current_instruction: Instruction = None
+        self.current_instruction: Instruction = SpecialFormat(opcode=0, funct=0)
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         pass

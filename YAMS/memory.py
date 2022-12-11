@@ -105,9 +105,9 @@ class Memory:
 
         return ret
 
-    def print_wordview(self, n_words = 20):
+    def print_wordview(self, starting_address: int, n_words = 20):
         for n in range(n_words):
-            addr = self.starting_address + n * 4
+            addr = starting_address + n * 4
             value = self.load_word(addr)
             print(f"{zero_extend_hex_to_word(hex(addr))} - {zero_extend_hex_to_word(hex(value))}\n")
 

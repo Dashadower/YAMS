@@ -193,8 +193,18 @@ class Assembler:
             elif instruction.instruction == "j" and instruction.arguments[0] in self.instruction_address_table:
                 # j label instruction
                 # Substitute address instead of label
-                jump_addr = hex(self.instruction_address_table[instruction.arguments[0]])
+                jump_addr = hex(int(self.instruction_address_table[instruction.arguments[0]] / 4))
                 new_ts.insert(instruction=instruction.instruction, arguments=[jump_addr])
+                current_instruction_addr += 4
+
+            elif instruction.instruction == "beq" and instruction.arguments[2] in self.instruction_address_table:
+                # beq label instruction
+                # substitute address instead of label
+                # beq address is offset between target and PC + 4. So if branch target is the next instruction, it's 0
+                # and if it's the 2nd instruction after, then it's 4
+                jump_addr = self.instruction_address_table[instruction.arguments[2]]
+                branch_addr = int((jump_addr - (current_instruction_addr + 4)) / 4)
+                new_ts.insert(instruction=instruction.instruction, arguments=[instruction.arguments[0], instruction.arguments[1], str(branch_addr)])
                 current_instruction_addr += 4
 
             else:

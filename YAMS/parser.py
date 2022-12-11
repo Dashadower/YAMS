@@ -1,6 +1,7 @@
 from typing import Dict, List, Any, Tuple, Union
 from dataclasses import dataclass, field
 from .instructions import *
+from .utils import string_numeric_to_decimal
 import re
 
 comment_removed = re.compile("^.*?(?=#|$)")  # capture all characters before first '#'
@@ -198,11 +199,11 @@ class Parser:
 
         if head == ".data":
             if n_tokens == 2:  # .data <addr> is specified
-                self.data_segment.starting_address = head[1]
+                self.data_segment.starting_address = string_numeric_to_decimal(tokens[1].strip())
             self.current_state = self.data_state
         elif head == ".text":
             if n_tokens == 2:  # .data <addr> is specified
-                self.text_segment.starting_address = head[1]
+                self.text_segment.starting_address = string_numeric_to_decimal(tokens[1].strip())
             self.current_state = self.text_state
         elif head == ".globl":
             pass

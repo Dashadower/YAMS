@@ -49,12 +49,12 @@ def zero_extend_hex_to_word(n_str: str, pad="0") -> str:
 
 def zero_extend_binary(n_str: str, bits=6, pad="0") -> str:
     """
-    given a string representation of an arbitrary number, normalize to a bit-length binary number and return as string
+    given a string representation of a binary number, normalize to a bit-length binary number and return as string
     """
-    return bin(string_numeric_to_decimal(n_str))[2:].rjust(bits, pad)
+    return n_str.rjust(bits, pad)
 
 
-def signed_bits_to_int(bin: str):
+def signed_bits_to_int(bin: str) -> int:
     """
     convert a signed binary-bitstring to integer
     """
@@ -62,3 +62,14 @@ def signed_bits_to_int(bin: str):
     if bin[0] == '1': # "sign bit", big-endian
        x -= 2**len(bin)
     return x
+
+def int_to_signed_bits(number: int, n_bits=32) -> str:
+    """
+    convert a integer into a signed binary number of length n_bits, with the 0-th bit representing the sign bit
+    """
+    mask = "1" * n_bits
+    result = bin(number & int(mask, 2))[2:]
+    if len(result) < n_bits:
+        result = zero_extend_binary(result, n_bits)
+
+    return result

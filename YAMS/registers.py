@@ -1,13 +1,20 @@
 from dataclasses import dataclass
 from typing import List
 from .pipeline_component import PipelineComponent
+from .instructions import Instruction, RFormat, SpecialFormat
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .pipeline import PipelineCoordinator
+
 
 class MainRegister(PipelineComponent):
-    def __init__(self):
+    def __init__(self, sp:int =0, gp: int=0):
         self._register = [0] * 32
+        self._register[29] = sp
+        self._register[28] = gp
 
-        self.read_value1 = None
-        self.read_value2 = None
+        self.read_value1: int = 0
+        self.read_value2: int = 0
 
     def _write(self, register_index, value):
         """
@@ -19,54 +26,78 @@ class MainRegister(PipelineComponent):
         return self._register[register_index]
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        if pipeline_c.MEMWB_register.control_regwrite == 1:
-            # do writeback here
-            pass
+        if pipeline_c.MEMWB_register.control_RegWrite == 1:
+            if pipeline_c.MEMWB_register.RegisterRd == 0:
+                return
+            self._register[pipeline_c.MEMWB_register.RegisterRd] = pipeline_c.WB_Mem2RegMUX.value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
-        # Components that hold data (memory, registers) cannot do anything in  update()
-        pass
+        self.read_value1 = self._register[pipeline_c.IFID_register.instruction.get_rs()]
+        self.read_value2 = self._register[pipeline_c.IFID_register.instruction.get_rt()]
+
+
+
+    def __repr__(self) -> str:
+        ret = ""
+        for index, value in enumerate(self._register):
+            ret += f"{index:2}({register_names[index]}) - {value}\n"
+
+        return ret
 
 
 class IFIDRegister(PipelineComponent):
     def __init__(self):
-        self.pc = None
-        self.instruction = None
+        self.pc: int = 0
+        self.instruction: Instruction = SpecialFormat(0, 0)
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.ID_HazardDetector.IFIDWrite:
             self.pc = pipeline_c.IF_PC4Adder.result
-            self.instruction = pipeline_c.IF_instruction_memory
+            self.instruction = pipeline_c.IF_InstructionMemory.current_instruction
         else:  # if IF/IDWrite is 0, keep the contents of the register
             pass
+
+        if pipeline_c.ID_BranchEqualAND.IFFlush == 1:
+            self.instruction = RFormat(opcode=0, funct=0, rs=0, rt=0, rd=0, shamt=0)
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
 
+    def __repr__(self) -> str:
+        ret = ""
+        ret += f"pc : {hex(self.pc)}\n"
+        ret += f"Instruction : {self.instruction}\n"
+        return ret
+
+
 class IDEXREgister(PipelineComponent):
     def __init__(self):
         # WB control signals
-        self.control_MemtoReg = None
-        self.control_RegWrite = None
+        self.control_MemtoReg: int = 0
+        self.control_RegWrite: int = 0
 
         # MEM control signals
-        self.control_Branch = None
-        self.control_MemRead = None
-        self.control_MemWrite = None
+        self.control_Branch: int = 0
+        self.control_MemRead: int = 0
+        self.control_MemWrite: int = 0
 
         # EX control signals
-        self.control_RegDst = None
-        self.control_ALUOp = None
-        self.control_ALUSrc = None
+        self.control_RegDst: int = 0
+        self.control_ALUOp: int = 0
+        self.control_ALUSrc: int = 0
 
-        self.pc = None
-        self.read_data1 = None
-        self.read_data2 = None
-        self.immediate = None
+        self.pc: int = 0
+        self.read_data1: int = 0
+        self.read_data2: int = 0
+        self.immediate: str = "0"
+
+        self.RegisterRs: int = 0
+        self.RegisterRt: int = 0
+        self.RegisterRd: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
 
-        control_out = pipeline_c.ID_control
+        control_out = pipeline_c.ID_ControlZeroMUX
 
         # WB control signals
         self.control_MemtoReg = control_out.MemtoReg
@@ -83,28 +114,52 @@ class IDEXREgister(PipelineComponent):
         self.control_ALUSrc = control_out.ALUSrc
 
         self.pc = pipeline_c.IFID_register.pc
-        self.read_data1 = pipeline_c.ID_main_register.readdata_1
-        self.read_data2 = pipeline_c.ID_main_register.readdata_2
+        self.read_data1 = pipeline_c.ID_MainRegister.read_value1
+        self.read_data2 = pipeline_c.ID_MainRegister.read_value2
 
-        self.immediate = pipeline_c.ID_sign_extender.value
+        self.immediate: str = pipeline_c.ID_ImmediateSignExtender.value
 
+        self.RegisterRs = pipeline_c.IFID_register.instruction.get_rs()
+        self.RegisterRt = pipeline_c.IFID_register.instruction.get_rt()
+        self.RegisterRd = pipeline_c.IFID_register.instruction.get_rd()
+
+    def __repr__(self) -> str:
+        ret = ""
+        ret += f"control_MemtoReg : {self.control_MemtoReg}\n"
+        ret += f"control_RegWrite : {self.control_RegWrite}\n"
+        ret += f"control_Branch : {self.control_Branch}\n"
+        ret += f"control_MemRead : {self.control_MemRead}\n"
+        ret += f"control_MemWrite : {self.control_MemWrite}\n"
+        ret += f"control_RegDst : {self.control_RegDst}\n"
+        ret += f"control_ALUOp : {self.control_ALUOp}\n"
+        ret += f"control_ALUSrc : {self.control_ALUSrc}\n"
+        ret += f"pc : {self.pc}\n"
+        ret += f"read_data1 : {self.read_data1}\n"
+        ret += f"read_data2 : {self.read_data2}\n"
+        ret += f"immediate : {self.immediate}\n"
+        ret += f"RegisterRs : {self.RegisterRs}\n"
+        ret += f"RegisterRt : {self.RegisterRt}\n"
+        ret += f"RegisterRd : {self.RegisterRd}\n"
+        return ret
 
 
 class EXMEMRegister(PipelineComponent):
     def __init__(self):
         # WB control signals
-        self.control_MemtoReg = None
-        self.control_RegWrite = None
+        self.control_MemtoReg: int = 0
+        self.control_RegWrite: int = 0
 
         # MEM control signals
-        self.control_MemRead = None
-        self.control_MemWrite = None
+        self.control_MemRead: int = 0
+        self.control_MemWrite: int = 0
 
-        self.alu_zero = None
-        self.alu_result = None
-        self.read_data2 = None
+        self.alu_zero: int = 0
+        self.alu_result: int = 0
+        self.read_data2: int = 0
 
-        self.immediate = None
+        self.immediate: str = "0"
+
+        self.RegisterRd: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         # WB control signals
@@ -126,19 +181,35 @@ class EXMEMRegister(PipelineComponent):
 
         self.immediate = pipeline_c.IDEX_register.immediate
 
+        self.RegisterRd = pipeline_c.EX_RegDstMUX.RegisterRd
+
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
+
+    def __repr__(self) -> str:
+        ret = ""
+        ret += f"control_MemtoReg : {self.control_MemtoReg}\n"
+        ret += f"control_RegWrite : {self.control_RegWrite}\n"
+        ret += f"control_MemRead : {self.control_MemRead}\n"
+        ret += f"control_MemWrite : {self.control_MemWrite}\n"
+        ret += f"alu_zero : {self.alu_zero}\n"
+        ret += f"alu_result : {self.alu_result}\n"
+        ret += f"read_data2 : {self.read_data2}\n"
+        ret += f"immediate : {self.immediate}\n"
+        ret += f"RegisterRd : {self.RegisterRd}\n"
+        return ret
 
 
 class MEMWBRegister(PipelineComponent):
     def __init__(self):
-        self.control_MemtoReg = None
-        self.control_RegWrite = None
+        self.control_MemtoReg: int = 0
+        self.control_RegWrite: int = 0
 
-        self.memory_read_result = None
-        self.alu_result = None
+        self.memory_read_result: int = 0
+        self.alu_result: int = 0
 
-        self.immediate = None
+        self.immediate: str = "0"
+        self.RegisterRd: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         self.control_MemtoReg = pipeline_c.EXMEM_register.control_MemtoReg
@@ -148,6 +219,53 @@ class MEMWBRegister(PipelineComponent):
         self.alu_result = pipeline_c.EXMEM_register.alu_result
 
         self.immediate = pipeline_c.EXMEM_register.immediate
+        self.RegisterRd = pipeline_c.EXMEM_register.RegisterRd
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
+
+    def __repr__(self) -> str:
+        ret = ""
+        ret += f"control_MemtoReg : {self.control_MemtoReg}\n"
+        ret += f"control_RegWrite : {self.control_RegWrite}\n"
+        ret += f"memory_read_result : {self.memory_read_result}\n"
+        ret += f"alu_result : {self.alu_result}\n"
+        ret += f"immediate : {self.immediate}\n"
+        ret += f"RegisterRd : {self.RegisterRd}\n"
+        return ret
+
+
+register_names = [
+    "$zero",
+    "$at",
+    "$v0",
+    "$v1",
+    "$a0",
+    "$a1",
+    "$a2",
+    "$a3",
+    "$t0",
+    "$t1",
+    "$t2",
+    "$t3",
+    "$t4",
+    "$t5",
+    "$t6",
+    "$t7",
+    "$s0",
+    "$s1",
+    "$s2",
+    "$s3",
+    "$s4",
+    "$s5",
+    "$s6",
+    "$s7",
+    "$t8",
+    "$t9",
+    "$k0",
+    "$k1",
+    "$gp",
+    "$sp",
+    "$fp",
+    "$ra"
+]

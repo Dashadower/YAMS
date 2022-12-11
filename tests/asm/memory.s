@@ -1,6 +1,6 @@
 .data 0x10000000
 d1:
-    .half 0xf
+    .word 0xffffffff
 d2:
     .word 0x1234ffff
 .globl main
@@ -9,4 +9,4 @@ main:
     la $4, d1
     la $5, d2
     lh $6, 2($5)
-    ori $2, $0, 1
+    or $2, $0, $0

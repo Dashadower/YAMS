@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, TYPE_CHECKING
 from .opcodes import instruction2opcode_funct, op, op0_funct
-from .utils import string_numeric_to_decimal, decimal2bin, zero_extend_binary
+from .utils import string_numeric_to_decimal, decimal2bin, zero_extend_binary, int_to_signed_bits
 import re
 
 if TYPE_CHECKING:
@@ -22,6 +22,21 @@ class Instruction:
 
         assert self.opcode == 0, "For funct field evaluation, opcode must be zero"
         return op0_funct[self.funct]
+
+    def get_opcode(self) -> int:
+        return self.opcode
+
+    def get_rs(self) -> int:
+        rs = self.to_binary()[6:11]
+        return int(rs, 2)
+
+    def get_rt(self) -> int:
+        rt = self.to_binary()[11:16]
+        return int(rt, 2)
+
+    def get_rd(self) -> int:
+        rd = self.to_binary()[16:21]
+        return int(rd, 2)
 
 
 @dataclass
@@ -47,10 +62,11 @@ class IFormat(Instruction):
     immediate: int
 
     def to_binary(self) -> str:
+        is_logical_instruction = self.get_instruction_name() in ("andi", "ori")
         return (zero_extend_binary(decimal2bin(self.opcode), 6) +
                 zero_extend_binary(decimal2bin(self.rs), 5) +
                 zero_extend_binary(decimal2bin(self.rt), 5) +
-                zero_extend_binary(decimal2bin(self.immediate), 16))
+                (zero_extend_binary(decimal2bin(self.immediate), 16) if is_logical_instruction else int_to_signed_bits(self.immediate, 16)))
 
 
 @dataclass
@@ -63,18 +79,20 @@ class JFormat(Instruction):
 
 
 class SpecialFormat(Instruction):
-    pass
+    def to_binary(self) -> str:
+        return "0" * 32
+
 
 class InstructionMemoryHandler:
     def __init__(self):
-        self.starting_addr: int = None
+        self.starting_addr: int = 0
         self._instruction_memory: Dict[int, Instruction] = {}
 
         # These patterns are used to match offset syntax in certain iformat instructions (lw, sw, etc)
         # For example, lw $2, 3($4)
         # iformat_offset_pattern will match '3'
         # iformat_offset_rs_register_pattern will match '4'
-        self.iformat_offset_pattern = re.compile(r"([\dx]+)(?=\()")
+        self.iformat_offset_pattern = re.compile(r"(-?[\dx]+)(?=\()")
         self.iformat_offset_rs_register_pattern = re.compile(r"(?!\(\$)\d+(?=\))")
 
     def load_instructions(self, text_segment: "TextSegment"):
@@ -127,7 +145,10 @@ class InstructionMemoryHandler:
 
 
     def fetch_instruction(self, addr: int) -> Instruction:
-        return self._instruction_memory[addr]
+        try:
+            return self._instruction_memory[addr]
+        except KeyError:
+            return SpecialFormat(0, 0)
 
 rformat_instructions = [
     "add",

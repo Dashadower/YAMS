@@ -61,6 +61,8 @@
   - update: see forward MUX documentations
 - ForwardB/ALUSrc MUX `ForwardBMUX`
   - update: see forward MUX documentations
+- ALUSrc MUX `ALUSrcMUX`
+  - second operand of ALU is from `ID/EXRegister.Immediate` or `ForwardBMUX`
 - ALU Control `ALUControl`
   - given `ID/EXRegister.Funct` and `Control.ALUOp`, return ALU operation code
 - ALU `ALU`
@@ -87,6 +89,7 @@
 2. Write data to memory if `MemWrite`
 3. Update Pipeline Registers
 4. Update Forwarding Unit
+5. Update ALU control
 5. Update components in EX stage
 6. Update ID Stage
    1. Update all components except for hazard detector
