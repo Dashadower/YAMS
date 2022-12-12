@@ -4,7 +4,7 @@ from YAMS.assembler import Assembler
 from YAMS.instructions import InstructionMemoryHandler
 from YAMS.memory import Memory
 
-with open("asm/memory_simple.s") as f:
+with open("asm/simple_jump.s") as f:
     parser = Parser(f.read())
     d, t = parser.parse()
     assembler = Assembler(t, d)
@@ -25,9 +25,10 @@ with open("asm/memory_simple.s") as f:
     print("#" * 5)
 
     pipeline = PipelineCoordinator(im, mem)
-    for _ in range(12):
-        pipeline.update()
-        pipeline.rising_edge()
+    pipeline.initialize()
+    for x in range(1, 20):
+        print("@@@@ Cycle", x)
+        pipeline.single_step()
 
     print(pipeline.ID_MainRegister)
 

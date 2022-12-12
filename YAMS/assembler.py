@@ -158,6 +158,12 @@ class Assembler:
                 new_ts.insert(instruction="li", arguments=[target_register, address])
                 current_instruction_addr += 4
 
+            elif instruction.instruction == "nop":
+                # NOP
+                # this is assembled into sll $0, $0, 0
+                new_ts.insert(instruction="sll", arguments=["$0","$0", "0"])
+                current_instruction_addr += 4
+
             else:
                 new_ts.insert(instruction=instruction.instruction, arguments=instruction.arguments)
                 current_instruction_addr += 4

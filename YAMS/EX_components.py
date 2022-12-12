@@ -63,6 +63,7 @@ class ALUSrcMUX(PipelineComponent):
         else:
             self.value = signed_bits_to_int(pipeline_c.IDEX_register.immediate)
 
+
 class ForwardAMUX(PipelineComponent):
     def __init__(self):
         self.value: int = 0
@@ -96,7 +97,7 @@ class ForwardBMUX(PipelineComponent):
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         if self.mux_input == 0:  # main register read value
-            self.value = pipeline_c.EX_ALUSrcMUX.value
+            self.value = pipeline_c.IDEX_register.read_data2
         elif self.mux_input == 1:  # memory read/previous ALU value
             self.value = pipeline_c.WB_Mem2RegMUX.value
         elif self.mux_input == 2:  # alu result

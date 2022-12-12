@@ -29,11 +29,13 @@ class MainRegister(PipelineComponent):
         if pipeline_c.MEMWB_register.control_RegWrite == 1:
             if pipeline_c.MEMWB_register.RegisterRd == 0:
                 return
+            print(f"wrote {pipeline_c.WB_Mem2RegMUX.value} to ${pipeline_c.MEMWB_register.RegisterRd}")
             self._register[pipeline_c.MEMWB_register.RegisterRd] = pipeline_c.WB_Mem2RegMUX.value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         self.read_value1 = self._register[pipeline_c.IFID_register.instruction.get_rs()]
         self.read_value2 = self._register[pipeline_c.IFID_register.instruction.get_rt()]
+        print(f"Read registers ${pipeline_c.IFID_register.instruction.get_rs()}:{self.read_value1}, ${pipeline_c.IFID_register.instruction.get_rt()}:{self.read_value2}")
 
 
 

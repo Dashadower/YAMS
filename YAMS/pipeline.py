@@ -11,6 +11,8 @@ from .memory import Memory
 
 class PipelineCoordinator:
     def __init__(self, instruction_handler: InstructionMemoryHandler, memory_handler: Memory):
+        self.instruction_handler = instruction_handler
+        self.memory_handler = memory_handler
         self.IF_PCCounter: "PCCounter" = PCCounter()
         self.IF_PCCounter.current_pc = instruction_handler.starting_addr
         self.IF_PC4Adder: "PC4Adder" = PC4Adder()
@@ -52,8 +54,17 @@ class PipelineCoordinator:
 
         self.WB_Mem2RegMUX: Mem2RegMUX = Mem2RegMUX()
 
+    def initialize(self):
+        self.IF_PCCounter.current_pc = self.instruction_handler.starting_addr
+        self.IF_PCSrcMUX.pc_out = self.instruction_handler.starting_addr
+        self.IF_InstructionMemory.on_rising_edge(self)
+
+    def single_step(self):
+        self.rising_edge()
+        self.update()
+        print(self.IFID_register)
+
     def rising_edge(self):
-        print("@@@@@RISINGEDGE")
         # 1. Update main register write
         self.ID_MainRegister.on_rising_edge(self)
 
@@ -61,13 +72,13 @@ class PipelineCoordinator:
         self.MEM_Memory.on_rising_edge(self)
 
         self.IF_PCCounter.on_rising_edge(self)
+        self.IF_InstructionMemory.on_rising_edge(self)
 
         # 3. Update pipeline registers in reverse order to save dependency
         self.MEMWB_register.on_rising_edge(self)
         self.EXMEM_register.on_rising_edge(self)
         self.IDEX_register.on_rising_edge(self)
         self.IFID_register.on_rising_edge(self)
-        print(self.IFID_register)
 
     def update(self):
         """

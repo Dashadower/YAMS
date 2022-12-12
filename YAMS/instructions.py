@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 class Instruction:
     opcode: int
     funct: int
+    name: str = field(default="", init=False)
+
+    def __post_init__(self):
+        self.name = self.get_instruction_name()
 
     def to_binary(self) -> str:
         raise NotImplementedError()
@@ -37,7 +41,6 @@ class Instruction:
     def get_rd(self) -> int:
         rd = self.to_binary()[16:21]
         return int(rd, 2)
-
 
 @dataclass
 class RFormat(Instruction):
@@ -78,6 +81,7 @@ class JFormat(Instruction):
                 zero_extend_binary(decimal2bin(self.addr), 26))
 
 
+@dataclass
 class SpecialFormat(Instruction):
     def to_binary(self) -> str:
         return "0" * 32
@@ -105,6 +109,7 @@ class InstructionMemoryHandler:
     def _create_instruction(self, entry: "TextEntry"):
         opcode, funct = instruction2opcode_funct[entry.instruction]
         if entry.instruction in rformat_instructions:
+            # Rformat: instruction rd, rs, rt
             if entry.instruction == "sll":
                 # sll rs register always defaults to 0
                 rd = int(entry.arguments[0][1:])
@@ -117,6 +122,7 @@ class InstructionMemoryHandler:
             return RFormat(opcode=opcode, rs=rs, rt=rt, rd=rd, shamt=shamt, funct=funct)
 
         elif entry.instruction in iformat_instructions:
+            # IFormat: instruction rt, rs, imm
             if entry.instruction in offset_iformat_instructions:
                 # These are instructions of the format `lw rt, offset(rs)`
                 rt = int(entry.arguments[0][1:])
@@ -129,6 +135,11 @@ class InstructionMemoryHandler:
                 rs = 0
                 rt = int(entry.arguments[0][1:])
                 immediate = string_numeric_to_decimal(entry.arguments[1])
+            elif entry.instruction == "beq":
+                # beq has the syntax beq rs, rt, label
+                rs = int(entry.arguments[0][1:])
+                rt = int(entry.arguments[1][1:])
+                immediate = string_numeric_to_decimal(entry.arguments[2])
             else:
                 rt = int(entry.arguments[0][1:])
                 rs = int(entry.arguments[1][1:])
@@ -137,6 +148,7 @@ class InstructionMemoryHandler:
             return IFormat(opcode=opcode, funct=funct, rs=rs, rt=rt, immediate=immediate)
 
         elif entry.instruction in jformat_instructions:
+            # Jformat: instruction imm
             addr = string_numeric_to_decimal(entry.arguments[0])
             return JFormat(opcode=opcode, funct=funct, addr=addr)
 

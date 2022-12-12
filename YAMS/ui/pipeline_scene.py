@@ -1,0 +1,543 @@
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsRectItem, QApplication, QGraphicsEllipseItem
+from PyQt5.QtGui import QTransform, QPen, QColor
+from PyQt5.QtCore import Qt
+import sys
+from pipeline_objects import *
+
+
+class PipelineScene(QGraphicsView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.scene = QGraphicsScene()
+        self.setScene(self.scene)
+        self.last_position = None
+        self._zoom = 0
+        self.object_scale_factor = 30
+        self.draw()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.last_position = event.pos()
+        else:
+            super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.last_position:
+            # calculate the distance the mouse has been dragged
+            delta = self.last_position - event.pos()
+            # get the current transformation (which is a matrix that includes the
+            # scaling ratios
+            transform = self.transform()
+            # m11 refers to the horizontal scale, m22 to the vertical scale;
+            # divide the delta by their corresponding ratio
+            deltaX = delta.x() / transform.m11()
+            deltaY = delta.y() / transform.m22()
+            print(deltaX, deltaY)
+            # translate the current sceneRect by the delta
+            self.setSceneRect(self.sceneRect().translated(deltaX, deltaY))
+            # update the new origin point to the current position
+            self.last_position = event.pos()
+        else:
+            super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.last_position = None
+        super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            factor = 1.25
+            self._zoom += 1
+        else:
+            factor = 0.8
+            self._zoom -= 1
+        self.scale(factor, factor)
+
+    def draw(self):
+        self.PCSrcMUX = PCSrcMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.PCSrcMUX)
+
+        self.PCCounter = PCCounterObj(self.object_scale_factor)
+        self.scene.addItem(self.PCCounter)
+
+        self.PC4Adder = PC4AdderObj(self.object_scale_factor)
+        self.scene.addItem(self.PC4Adder)
+
+        self.InstructionMemory = InstructionMemoryObj(self.object_scale_factor)
+        self.scene.addItem(self.InstructionMemory)
+
+        self.IFIDRegister = IFIDRegisterObj(self.object_scale_factor)
+        self.scene.addItem(self.IFIDRegister)
+
+        ##########
+
+        self.HazardDetector = HazardDetectorObj(self.object_scale_factor)
+        self.scene.addItem(self.HazardDetector)
+
+        self.Control = ControlObj(self.object_scale_factor)
+        self.scene.addItem(self.Control)
+
+        self.ControlZeroMUX = ControlZeroMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.ControlZeroMUX)
+
+        self.BranchEqualAnd = BranchEqualANDObj(self.object_scale_factor)
+        self.scene.addItem(self.BranchEqualAnd)
+
+        self.BranchEqualCMP = BranchEqualCMPObj(self.object_scale_factor)
+        self.scene.addItem(self.BranchEqualCMP)
+
+        self.BranchForwardA = BranchCMPForwardAMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.BranchForwardA)
+
+        self.BranchForwardB = BranchCMPForwardBMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.BranchForwardB)
+
+        self.MainRegister = MainRegisterObj(self.object_scale_factor)
+        self.scene.addItem(self.MainRegister)
+
+        self.ImmediateSignExtender = ImmediateSignExtenderObj(self.object_scale_factor)
+        self.scene.addItem(self.ImmediateSignExtender)
+
+        self.BranchPCAdder = BranchPCAdderObj(self.object_scale_factor)
+        self.scene.addItem(self.BranchPCAdder)
+
+        self.JAddrCalc = JAddrCalcObj(self.object_scale_factor)
+        self.scene.addItem(self.JAddrCalc)
+
+        self.IDEXRegister = IDEXRegisterObj(self.object_scale_factor)
+        self.scene.addItem(self.IDEXRegister)
+
+        ###########
+
+        self.ForwardAMUX = ForwardAMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.ForwardAMUX)
+
+        self.ForwardBMUX = ForwardBMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.ForwardBMUX)
+
+        self.ALUSrcMUX = ALUSrcMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.ALUSrcMUX)
+
+        self.ALU = ALUObj(self.object_scale_factor)
+        self.scene.addItem(self.ALU)
+
+        self.ALUControl = ALUControlObj(self.object_scale_factor)
+        self.scene.addItem(self.ALUControl)
+
+        self.RegDstMUX = RegDstMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.RegDstMUX)
+
+        self.ForwardingUnit = ForwardingUnitObj(self.object_scale_factor)
+        self.scene.addItem(self.ForwardingUnit)
+
+        self.EXMEMRegister = EXMEMRegisterObj(self.object_scale_factor)
+        self.scene.addItem(self.EXMEMRegister)
+
+        self.Memory = MemoryObj(self.object_scale_factor)
+        self.scene.addItem(self.Memory)
+
+        self.MEMWBRegister = MEMWBRegisterObj(self.object_scale_factor)
+        self.scene.addItem(self.MEMWBRegister)
+
+        self.MemtoRegMUX = MemtoRegMUXObj(self.object_scale_factor)
+        self.scene.addItem(self.MemtoRegMUX)
+
+        self.draw_lines()
+
+    def draw_grid_line(self, x1, y1, x2, y2, pen, start_middle=True, end_middle=True):
+        """
+        :param x1: start point x grid cord
+        :param y1: start point y grid coord
+        :param x2: end point x grid coord
+        :param y2: end point y grid coord
+        :param p1_middle: Whether line should start from the center of the start grid, or its border
+        :param p2_middle: Whether line should end at the center of the end point grid, or its border
+        """
+        x1 *= self.object_scale_factor
+        x2 *= self.object_scale_factor
+        y1 *= self.object_scale_factor
+        y2 *= self.object_scale_factor
+        half = self.object_scale_factor // 2
+        if x1 == x2:
+            if y1 > y2:
+                direction = "up"
+                if start_middle:
+                    x1 += half
+                    y1 += half
+                else:
+                    x1 += half
+                    y1 += self.object_scale_factor
+
+                if end_middle:
+                    x2 += half
+                    y2 += half
+                else:
+                    x2 += half
+
+            else:
+                direction = "down"
+                if start_middle:
+                    x1 += half
+                    y1 += half
+                else:
+                    x1 += half
+                    y1 += self.object_scale_factor
+
+                if end_middle:
+                    x2 += half
+                    y2 += half
+                else:
+                    x2 += half
+
+        else:
+            if x1 > x2:
+                direction = "left"
+                if start_middle:
+                    x1 += half
+                    y1 += half
+                else:
+                    x1 += self.object_scale_factor
+                    y1 += half
+
+                if end_middle:
+                    x2 += half
+                    y2 += half
+                else:
+                    y2 += half
+            else:
+                direction = "right"
+                if start_middle:
+                    x1 += half
+                    y1 += half
+                else:
+                    y1 += half
+
+                if end_middle:
+                    x2 += half
+                    y2 += half
+                else:
+                    x2 += self.object_scale_factor
+                    y2 += half
+
+
+        self.scene.addLine(x1, y1, x2, y2, pen)
+
+    def draw_half_gridline(self, x, y, pen, direction):
+        x *= self.object_scale_factor
+        y *= self.object_scale_factor
+        middle_x = x + self.object_scale_factor // 2
+        middle_y = y + self.object_scale_factor // 2
+        if direction == "left":
+            self.scene.addLine(middle_x, middle_y, x, middle_y, pen)
+        elif direction == "right":
+            self.scene.addLine(middle_x, middle_y, x + self.object_scale_factor, middle_y, pen)
+        elif direction == "up":
+            self.scene.addLine(middle_x, middle_y, middle_x, y, pen)
+        elif direction == "down":
+            self.scene.addLine(middle_x, middle_y, middle_x, y + self.object_scale_factor, pen)
+        else:
+            raise Exception("Unknown direction", direction)
+
+    def draw_vertical_gridline(self, x, y, pen):
+        x *= self.object_scale_factor
+        y *= self.object_scale_factor
+        self.scene.addLine(x + self.object_scale_factor // 2, y, x + self.object_scale_factor // 2, y + self.object_scale_factor, pen)
+
+    def draw_horizontal_gridline(self, x, y, pen):
+        x *= self.object_scale_factor
+        y *= self.object_scale_factor
+        self.scene.addLine(x, y + self.object_scale_factor // 2, x + self.object_scale_factor, y + self.object_scale_factor // 2)
+
+    def draw_grid_dot(self, x, y):
+        pen = QPen(Qt.black, 2)
+        brush = QBrush(Qt.black)
+        x *= self.object_scale_factor
+        y *= self.object_scale_factor
+        x += self.object_scale_factor // 2
+        y += self.object_scale_factor // 2
+        radius = self.object_scale_factor // 15
+        self.scene.addEllipse(x - radius, y - radius, radius * 2, radius * 2, pen, brush)
+
+
+    def draw_lines(self):
+        line_pen = QPen(Qt.black, 1)
+
+        # PCSrcMUX -> PCCounter
+        self.draw_grid_line(5, 22, 6, 22, line_pen, False, False)
+
+        # PCCounter -> PC4Adder
+        self.draw_grid_line(9, 22, 12, 22, line_pen, False, False)
+        self.draw_grid_dot(10, 22)
+        self.draw_grid_line(10, 22, 10, 12, line_pen, True, True)
+        self.draw_half_gridline(10, 12, line_pen, "right")
+
+        # PCCounter -> InstructionMemory
+        self.draw_grid_line(9, 22, 12, 22, line_pen, False, False)
+
+        # PC4Adder -> IFIDRegister
+        self.draw_grid_dot(14, 12)
+        self.draw_grid_line(13, 12, 17, 12, line_pen, False, False)
+
+        # PC4Adder -> PCSrcMUX
+        self.draw_grid_line(14, 12, 14, 9, line_pen, True, True)
+        self.draw_grid_line(14, 9, 3, 9, line_pen, True, True)
+        self.draw_grid_line(3, 9, 3, 21, line_pen, True, True)
+        self.draw_half_gridline(3, 21, line_pen, "right")
+
+        # InstructionMemory -> IFIDRegister
+        self.draw_horizontal_gridline(17, 22, line_pen)
+
+        ############################
+        # ID
+
+        # IFIDRegister -> BranchPCAdder (PC)
+        self.draw_grid_line(22, 12, 32, 12, line_pen, False, False)
+
+        # IFIDRegister -> JAddrCalc (I)
+        # PC
+        self.draw_grid_dot(24, 12)
+        self.draw_grid_line(24, 12, 24, 10, line_pen, True, True)
+        self.draw_grid_line(24, 10, 27, 10, line_pen, True, False)
+        # Immediate
+        self.draw_grid_dot(23, 11)
+        self.draw_grid_line(23, 11, 27, 11, line_pen, True, False)
+
+        # Spread out instruction from IFIDRegister
+        #      |
+        # IFID-|
+        #      |
+        self.draw_grid_line(22, 22, 23, 22, line_pen, False, True)
+        self.draw_grid_line(23, 5, 23, 33, line_pen, True, True)
+
+        # Spread i-path -> Control
+        self.draw_grid_dot(23, 7)
+        self.draw_half_gridline(23, 7, line_pen, "right")
+
+        # Spread i-path -> HazardDetector
+        self.draw_grid_line(23, 5, 29, 5, line_pen, True, False)
+
+        # spread i-path -> MainRegister
+        self.draw_grid_line(23, 17, 32, 17, line_pen, True, False)
+        self.draw_grid_dot(23, 17)
+        self.draw_grid_line(23, 19, 32, 19, line_pen, True, False)
+        self.draw_grid_dot(23, 19)
+
+        # spread i-path -> ImmediateSignExtender
+        self.draw_grid_line(23, 28, 26, 28, line_pen, True, False)
+        self.draw_grid_dot(23, 28)
+
+        # spread i-path -> IDEXRegister
+        # Rt
+        self.draw_grid_line(23, 31, 48, 31, line_pen, True, False)
+        self.draw_grid_dot(23, 31)
+        # Rs
+        self.draw_grid_line(23, 32, 48, 32, line_pen, True, False)
+        self.draw_grid_dot(23, 32)
+        # Rd
+        self.draw_grid_line(23, 33, 48, 33, line_pen, True, False)
+
+        # ImmediateSignExtender -> IDEXRegister
+        self.draw_grid_line(30, 28, 48, 28, line_pen, False, False)
+
+        # ImmediateSignExtender -> BranchPCAdder
+        self.draw_grid_dot(30, 28)
+        self.draw_grid_line(30, 28, 30, 14, line_pen, True, True)
+        self.draw_grid_line(30, 14, 32, 14, line_pen, True, False)
+
+        # BranchPCAdder -> PCSrcMUX
+        self.draw_grid_line(35, 13, 36, 13, line_pen, False, True)
+        self.draw_grid_line(36, 13, 36, 1, line_pen, True, True)
+        self.draw_grid_line(36, 1, 1, 1, line_pen, True, True)
+        self.draw_grid_line(1, 1, 1, 23, line_pen, True, True)
+        self.draw_grid_line(1, 23, 3, 23, line_pen, True, False)
+
+        # JAddrCalc -> PCSrcMUX
+        self.draw_grid_line(28, 9, 28, 4, line_pen, False, True)
+        self.draw_grid_line(28, 4, 2, 4, line_pen, True, True)
+        self.draw_grid_line(2, 4, 2, 22, line_pen, True, True)
+        self.draw_grid_line(2, 22, 3, 22, line_pen, True, False)
+
+        # Control -> ControlZeroMUX
+        self.draw_grid_line(27, 8, 37, 8, line_pen, False, False)
+
+        # ControlZeroMUX -> IDEXRegister
+        self.draw_grid_line(39, 9, 48, 9, line_pen, False, False)
+
+        # MainRegister -> IDEXRegister
+        self.draw_grid_line(38, 22, 48, 22, line_pen, False, False)
+        self.draw_grid_line(38, 25, 48, 25, line_pen, False, False)
+
+        # MainRegister -> BranchCMPForwardAMUX
+        self.draw_grid_line(38, 22, 38, 13, line_pen, True, True)
+        self.draw_grid_dot(38, 22)
+        self.draw_grid_line(38, 13, 42, 13, line_pen, True, False)
+
+        # MainRegister -> BranchCMPForwardBMUX
+        self.draw_grid_line(39, 25, 39, 17, line_pen, True, True)
+        self.draw_grid_dot(39, 25)
+        self.draw_grid_line(39, 17, 42, 17, line_pen, True, False)
+
+        # BranchForwardAMUX, BranchForwardBMUX -> BranchEqualCMP
+        self.draw_horizontal_gridline(44, 14, line_pen)
+        self.draw_horizontal_gridline(44, 18, line_pen)
+
+        # BranchEqualCMP -> BranchEqualAND
+        self.draw_half_gridline(47, 16, line_pen, "left")
+        self.draw_grid_line(47, 16, 47, 7, line_pen, True, False)
+
+        # ControlZeroMUX -> BranchEqualAND
+        self.draw_grid_line(46, 9, 46, 7, line_pen, True, False)
+        self.draw_grid_dot(46, 9)
+
+        # EX
+        #######################
+
+        # IDEXRegister -> ForwardAMUX
+        self.draw_half_gridline(53, 22, line_pen, "left")
+        self.draw_grid_line(53, 22, 53, 12, line_pen, True, True)
+        self.draw_grid_line(53, 12, 59, 12, line_pen, True, False)
+
+        #IDEXRegister -> ForwardBMUX
+        self.draw_grid_line(53, 25, 54, 25, line_pen, False, True)
+        self.draw_grid_line(54, 25, 54, 19, line_pen, True, True)
+        self.draw_grid_line(54, 19, 59, 19, line_pen, True, False)
+
+        #IDEXREgister -> ALUSrcMUX (immediate)
+        self.draw_grid_line(53, 28, 58, 28, line_pen, False, True)
+        self.draw_grid_line(58, 28, 58, 22, line_pen, True, True)
+        self.draw_grid_line(58, 22, 62, 22, line_pen, True, False)
+
+        # IDEXREgister -> RegDSTMUX
+        # Rt
+        self.draw_grid_line(53, 31, 60, 31, line_pen, False, False)
+        # Rd
+        self.draw_grid_line(53, 33, 60, 33, line_pen, False, False)
+
+        # IDEXRegister -> ForwardingUnit (Rt, Rs)
+        # Rt
+        self.draw_grid_line(59, 31, 59, 36, line_pen, True, True)
+        self.draw_grid_dot(59, 31)
+        self.draw_grid_line(59, 36, 63, 36, line_pen, True, False)
+        # Rs
+        self.draw_grid_line(53, 32, 58, 32, line_pen, False, True)
+        self.draw_grid_line(58, 32, 58, 38, line_pen, True, True)
+        self.draw_grid_line(58, 38, 63, 38, line_pen, True, False)
+
+        # RegDstMUX -> EXMEMRegister
+        self.draw_grid_line(62, 32, 72, 32, line_pen, False, False)
+
+        # ForwardAMUX -> ALU
+        self.draw_grid_line(61, 13, 64, 13, line_pen, False, False)
+
+        # ForwardBMUX -> ALUSrcMUX
+        self.draw_grid_line(61, 20, 62, 20, line_pen, False, False)
+
+        # ForwardBMUX -> EXMEMRegister
+        self.draw_grid_line(61, 20, 61, 23, line_pen, True, True)
+        self.draw_grid_dot(61, 20)
+        self.draw_grid_line(61, 23, 72, 23, line_pen, True, False)
+
+        # ALUSrcMUX -> ALU
+        self.draw_horizontal_gridline(64, 21, line_pen)
+
+        # ALU -> EXMEMRegister
+        self.draw_grid_line(70, 16, 72, 16, line_pen, False, False)
+
+        # MEM
+        ##################
+
+        # EXMEM -> Memory
+        # ALUResult
+        self.draw_grid_line(77, 16, 80, 16, line_pen, False, False)
+        # register read (forwardB)
+        self.draw_grid_line(77, 23, 80, 23, line_pen, False, False)
+
+        # EXMEM -> branch forward mux, ALU forward MUX
+        self.draw_grid_line(79, 16, 79, 40, line_pen, True, True)
+        self.draw_grid_dot(79, 16)
+        self.draw_grid_line(79, 40, 41, 40, line_pen, True, True)
+        # ForwardA
+        self.draw_grid_line(56, 40, 56, 14, line_pen, True, True)
+        self.draw_grid_dot(56, 40)
+        self.draw_grid_line(56, 14, 59, 14, line_pen, True, False)
+        # ForwardB
+        self.draw_grid_line(56, 21, 59, 21, line_pen, True, False)
+        self.draw_grid_dot(56, 21)
+        # Branch mux
+        self.draw_grid_line(41, 40, 41, 15, line_pen, True, True)
+        self.draw_grid_line(41, 15, 42, 15, line_pen, True, False)
+        # branch mux B
+        self.draw_grid_line(41, 19, 42, 19, line_pen, True, False)
+        self.draw_grid_dot(41, 19)
+
+        # EXMEM -> MEMWB
+        # ALU Result
+        self.draw_grid_line(79, 26, 87, 26, line_pen, True, False)
+        self.draw_grid_dot(79, 26)
+        # Rd
+        self.draw_grid_line(77, 32, 87, 32, line_pen, False, False)
+
+        # EXMEM -> ForwardingUnit
+        self.draw_grid_line(78, 32, 78, 36, line_pen, True, True)
+        self.draw_grid_dot(78, 32)
+        self.draw_grid_line(78, 36, 69, 36, line_pen, True, False)
+
+        # Memory -> MEMWB
+        self.draw_grid_line(86, 18, 87, 18, line_pen, False, False)
+
+        # WB
+        ###################
+        # MEMWB -> MemToRegMUX
+        # Memory read data
+        self.draw_grid_line(92, 18, 93, 18, line_pen, False, True)
+        self.draw_grid_line(93, 18, 93, 24, line_pen, True, True)
+        self.draw_grid_line(93, 24, 94, 24, line_pen, True, False)
+        # Previous ALU result
+        self.draw_grid_line(92, 26, 94, 26, line_pen, False, False)
+
+        # MEMWB -> MainRegister
+        # Write address
+        self.draw_grid_line(92, 32, 94, 32, line_pen, False, True)
+        self.draw_grid_line(94, 32, 94, 46, line_pen, True, True)
+        self.draw_grid_line(94, 46, 31, 46, line_pen, True, True)
+        self.draw_grid_line(31, 46, 31, 23, line_pen, True, True)
+        self.draw_grid_line(31, 23, 32, 23, line_pen, True, False)
+
+        # Mem2RegMUX -> MainRegister (Write data)
+        self.draw_grid_line(96, 25, 97, 25, line_pen, False, True)
+        self.draw_grid_line(97, 25, 97, 44, line_pen, True, True)
+        self.draw_grid_line(97, 44, 32, 44, line_pen, True, True)
+        self.draw_grid_line(32, 44, 32, 25, line_pen, True, True)
+        self.draw_half_gridline(32, 25, line_pen, "right")
+
+        # Mem2RegMUX -> Branch/ALU Forward MUXes (writeback data)
+        # ALU
+        self.draw_grid_line(55, 44, 55, 13, line_pen, True, True)
+        self.draw_grid_dot(55, 44)
+        # FwdA
+        self.draw_grid_line(55, 13, 59, 13, line_pen, True, False)
+        # FwdB
+        self.draw_grid_line(55, 20, 59, 20, line_pen, True, False)
+        self.draw_grid_dot(55, 20)
+        # Branch Fwd A
+        self.draw_grid_line(40, 44, 40, 14, line_pen, True, True)
+        self.draw_grid_dot(40, 44)
+        self.draw_grid_line(40, 14, 42, 14, line_pen, True, False)
+        # Branch Fwd B
+        self.draw_grid_line(40, 18, 42, 18, line_pen, True, False)
+        self.draw_grid_dot(40, 18)
+
+
+
+
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = PipelineScene()
+    window.draw()
+    window.show()
+
+    app.exec_()
+

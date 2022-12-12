@@ -41,7 +41,27 @@ class HazardDetector(PipelineComponent):
                 self.zero_control_signals = 0
                 self.PCWrite = 0
                 self.IFIDWrite = 0
-
+        # check if branch instruction immediately follows load instruction and causes hazard
+        # This requires an additional stall
+        # Trigger condition:
+        # 1. Instruction in EX/MEM is a load instruction, with destination RegisterRd
+        # 2. Instruction in IF/ID is a beq, with one of its comparison arguments is load's RegisterRd
+        # example:
+        # lw $9, 0($8)
+        # stall (first stall, handled in the above case)
+        # stall (second stall, handled here)
+        # beq $9, $0, label
+        # if pipeline_c.EXMEM_register.control_MemRead == 1 and pipeline_c.EXMEM_register.control_RegWrite == 1 and \
+        #         pipeline_c.IDEX_register.control_MemRead == 0 and \
+        #         pipeline_c.IDEX_register.control_RegWrite == 0 and \
+        #         pipeline_c.IDEX_register.control_MemWrite == 0:
+        if pipeline_c.EXMEM_register.control_MemRead == 1 and pipeline_c.EXMEM_register.control_RegWrite == 1:
+            if pipeline_c.IFID_register.instruction.get_instruction_name() == "beq" and \
+                    (pipeline_c.IFID_register.instruction.get_rs() == pipeline_c.EXMEM_register.RegisterRd or
+                     pipeline_c.IFID_register.instruction.get_rt() == pipeline_c.EXMEM_register.RegisterRd):
+                self.zero_control_signals = 0
+                self.PCWrite = 0
+                self.IFIDWrite = 0
 
 class Control(PipelineComponent):
     def __init__(self):
@@ -272,8 +292,8 @@ class BranchCMPForwardAMUX(PipelineComponent):
         self.mux_input = value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
-        if self.mux_input == 0:  # main register read value
-            self.value = pipeline_c.IDEX_register.read_data1
+        if self.mux_input == 0:  # main register read value rs
+            self.value = pipeline_c.ID_MainRegister.read_value1
         elif self.mux_input == 1:  # memory read/previous ALU value
             self.value = pipeline_c.WB_Mem2RegMUX.value
         elif self.mux_input == 2:  # alu result
@@ -292,8 +312,8 @@ class BranchCMPForwardBMUX(PipelineComponent):
         self.mux_input = value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
-        if self.mux_input == 0:  # main register read value
-            self.value = pipeline_c.IDEX_register.read_data2
+        if self.mux_input == 0:  # main register read value rt
+            self.value = pipeline_c.ID_MainRegister.read_value2
         elif self.mux_input == 1:  # memory read/previous ALU value
             self.value = pipeline_c.WB_Mem2RegMUX.value
         elif self.mux_input == 2:  # alu result

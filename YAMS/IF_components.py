@@ -41,7 +41,8 @@ class PC4Adder(PipelineComponent):
         self.result: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        self.update(pipeline_c)
+        #self.update(pipeline_c)
+        pass
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         current_pc = pipeline_c.IF_PCCounter.current_pc
@@ -55,8 +56,9 @@ class InstructionMemory(PipelineComponent):
         self.current_instruction: Instruction = SpecialFormat(opcode=0, funct=0)
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
-        pass
-
-    def update(self, pipeline_c: "PipelineCoordinator") -> None:
         instruction_addr = pipeline_c.IF_PCCounter.current_pc
         self.current_instruction = self.im_handler.fetch_instruction(instruction_addr)
+        #self.update(pipeline_c)
+
+    def update(self, pipeline_c: "PipelineCoordinator") -> None:
+        pass
