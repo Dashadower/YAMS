@@ -22,7 +22,7 @@ You need the following:
 - Python 3.6 or higher (for f-strings)
 - PyQt5
 
-Run `app.py` to start the application
+Run `YAMS.py` to start the application
 
 ### Installing PyQt5 for Apple silicon
 

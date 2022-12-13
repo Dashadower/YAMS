@@ -33,6 +33,7 @@ class MainRegister(PipelineComponent):
             self._register[pipeline_c.MEMWB_register.RegisterRd] = pipeline_c.WB_Mem2RegMUX.value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
+        self.on_rising_edge(pipeline_c)
         self.read_value1 = self._register[pipeline_c.IFID_register.instruction.get_rs()]
         self.read_value2 = self._register[pipeline_c.IFID_register.instruction.get_rt()]
 
