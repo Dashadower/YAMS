@@ -150,8 +150,10 @@ class Control(PipelineComponent):
                 self.ALUOp = 0
             elif instruction_name == "ori":
                 self.ALUOp = 3
-            elif instruction_name == "lui":
-                self.ALUOp = 0
+            elif instruction_name == "andi":
+                self.ALUOp = 4
+            # elif instruction_name == "lui":
+            #     self.ALUOp = 0
             else:
                 raise Exception("Not implemented instruction", instruction_name)
         elif instruction_name == "j":

@@ -78,7 +78,7 @@ class TextSegment:
         self._current_assembler_remark = ""
 
     def set_label(self, label_name: str):
-        if label_name in self._entries:
+        if label_name in [x.label for x in self._entries]:
             raise Exception(f"Text segment label {label_name} already exists but is being reused!!")
 
         self._current_label = label_name

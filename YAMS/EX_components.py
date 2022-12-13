@@ -129,6 +129,7 @@ class ALUControl(PipelineComponent):
             self.control_ALUControl = 6  # subtract
         elif pipeline_c.IDEX_register.control_ALUOp == 2:
             funct_field = pipeline_c.IDEX_register.immediate[-6:]
+            print(funct_field, pipeline_c.IDEX_register.instruction.to_binary()[-16:][-6:])
             if funct_field == "100000":
                 self.control_ALUControl = 2  # add
             elif funct_field == "100010":
@@ -139,6 +140,14 @@ class ALUControl(PipelineComponent):
                 self.control_ALUControl = 1  # OR
             elif funct_field == "101010":
                 self.control_ALUControl = 7  # set-on-less-than
+        elif pipeline_c.IDEX_register.control_ALUOp == 3:
+            # ori
+            self.control_ALUControl = 1
+        elif pipeline_c.IDEX_register.control_ALUOp == 4:
+            # andi
+            self.control_ALUControl = 0
+        else:
+            raise Exception("Unknown ALUop", pipeline_c.IDEX_register.control_ALUOp)
 
 
 class ALU(PipelineComponent):
