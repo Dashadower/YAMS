@@ -35,9 +35,9 @@ class HazardDetector(PipelineComponent):
                 write_destination = pipeline_c.IDEX_register.RegisterRt
             else:
                 write_destination = pipeline_c.IDEX_register.RegisterRd
-
-            if pipeline_c.IFID_register.instruction.get_rs() == write_destination or \
-                    pipeline_c.IFID_register.instruction.get_rt() == write_destination:
+            if write_destination != 0 and \
+                    (pipeline_c.IFID_register.instruction.get_rs() == write_destination or \
+                    pipeline_c.IFID_register.instruction.get_rt() == write_destination):
                 self.zero_control_signals = 0
                 self.PCWrite = 0
                 self.IFIDWrite = 0
@@ -57,6 +57,7 @@ class HazardDetector(PipelineComponent):
         #         pipeline_c.IDEX_register.control_MemWrite == 0:
         if pipeline_c.EXMEM_register.control_MemRead == 1 and pipeline_c.EXMEM_register.control_RegWrite == 1:
             if pipeline_c.IFID_register.instruction.get_instruction_name() == "beq" and \
+                    pipeline_c.EXMEM_register.RegisterRd != 0 and \
                     (pipeline_c.IFID_register.instruction.get_rs() == pipeline_c.EXMEM_register.RegisterRd or
                      pipeline_c.IFID_register.instruction.get_rt() == pipeline_c.EXMEM_register.RegisterRd):
                 self.zero_control_signals = 0
@@ -176,6 +177,7 @@ class ControlZeroMUX(PipelineComponent):
         self.Jump: int = 0
         self.Branch: int = 0
         self.ALUOp: int = 0
+        self.mux_input = 0
 
     def reset_signals(self):
         self.RegWrite = 0
@@ -190,6 +192,7 @@ class ControlZeroMUX(PipelineComponent):
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.ID_HazardDetector.zero_control_signals == 0:
             self.reset_signals()
+            self.mux_input = 1
         else:
             self.RegDst = pipeline_c.ID_Control.RegDst
             self.ALUSrc = pipeline_c.ID_Control.ALUSrc
@@ -200,6 +203,7 @@ class ControlZeroMUX(PipelineComponent):
             self.Jump = pipeline_c.ID_Control.Jump
             self.Branch = pipeline_c.ID_Control.Branch
             self.ALUOp = pipeline_c.ID_Control.ALUOp
+            self.mux_input = 0
 
 class ControlZeroSetOR(PipelineComponent):
     def __init__(self):

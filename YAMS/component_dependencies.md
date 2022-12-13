@@ -57,13 +57,12 @@ Implies that A is dependent on B and thus `B.update()` must be called before `A.
 ## EX
 - EX_ForwardingUnit
 - EX_ALUSrcMUX
+  - EX_ForwardBMUX
 - EX_ForwardAMUX
   - EX_ForwardingUnit
-  - EX_ALUSrcMUX
   - WB_Mem2RegMUX
 - EX_ForwardBMUX
   - EX_ForwardingUnit
-  - EX_ALUSrcMUX
   - WB_Mem2RegMUX
 - EX_ALUControl
 - EX_ALU
@@ -102,9 +101,9 @@ Implies that A is dependent on B and thus `B.update()` must be called before `A.
 - IF_PCCounter
 - IF_InstructionMemory
 - EX_ForwardingUnit
-- EX_ALUSrcMUX
 - EX_ForwardAMUX
 - EX_ForwardBMUX
+- EX_ALUSrcMUX
 - EX_ALUControl
 - EX_ALU
 - EX_RegDstMUX

@@ -16,9 +16,11 @@ class ALUSrcMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class JAddrCalcObj(QGraphicsRectItem):
@@ -34,9 +36,11 @@ class JAddrCalcObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class IDEXRegisterObj(QGraphicsRectItem):
@@ -52,9 +56,11 @@ class IDEXRegisterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ControlObj(QGraphicsRectItem):
@@ -70,9 +76,11 @@ class ControlObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ForwardAMUXObj(QGraphicsRectItem):
@@ -88,9 +96,11 @@ class ForwardAMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ForwardBMUXObj(QGraphicsRectItem):
@@ -106,9 +116,11 @@ class ForwardBMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class MainRegisterObj(QGraphicsRectItem):
@@ -124,9 +136,11 @@ class MainRegisterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ControlZeroMUXObj(QGraphicsRectItem):
@@ -142,9 +156,11 @@ class ControlZeroMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class BranchCMPForwardAMUXObj(QGraphicsRectItem):
@@ -160,9 +176,11 @@ class BranchCMPForwardAMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class BranchPCAdderObj(QGraphicsRectItem):
@@ -178,9 +196,11 @@ class BranchPCAdderObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class MemtoRegMUXObj(QGraphicsRectItem):
@@ -196,9 +216,11 @@ class MemtoRegMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ALUControlObj(QGraphicsRectItem):
@@ -214,9 +236,11 @@ class ALUControlObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class EXMEMRegisterObj(QGraphicsRectItem):
@@ -232,9 +256,11 @@ class EXMEMRegisterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class MEMWBRegisterObj(QGraphicsRectItem):
@@ -250,9 +276,11 @@ class MEMWBRegisterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ALUObj(QGraphicsRectItem):
@@ -268,9 +296,11 @@ class ALUObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class MemoryObj(QGraphicsRectItem):
@@ -286,9 +316,11 @@ class MemoryObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class BranchCMPForwardBMUXObj(QGraphicsRectItem):
@@ -304,9 +336,11 @@ class BranchCMPForwardBMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class BranchEqualCMPObj(QGraphicsRectItem):
@@ -322,9 +356,11 @@ class BranchEqualCMPObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class PCCounterObj(QGraphicsRectItem):
@@ -340,9 +376,11 @@ class PCCounterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class PC4AdderObj(QGraphicsRectItem):
@@ -358,9 +396,11 @@ class PC4AdderObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class PCSrcMUXObj(QGraphicsRectItem):
@@ -376,9 +416,11 @@ class PCSrcMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ForwardingUnitObj(QGraphicsRectItem):
@@ -394,9 +436,11 @@ class ForwardingUnitObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class BranchEqualANDObj(QGraphicsRectItem):
@@ -412,9 +456,11 @@ class BranchEqualANDObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class InstructionMemoryObj(QGraphicsRectItem):
@@ -430,9 +476,11 @@ class InstructionMemoryObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class IFIDRegisterObj(QGraphicsRectItem):
@@ -448,9 +496,11 @@ class IFIDRegisterObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class ImmediateSignExtenderObj(QGraphicsRectItem):
@@ -466,9 +516,11 @@ class ImmediateSignExtenderObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class RegDstMUXObj(QGraphicsRectItem):
@@ -484,9 +536,11 @@ class RegDstMUXObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 
 class HazardDetectorObj(QGraphicsRectItem):
@@ -502,7 +556,9 @@ class HazardDetectorObj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 

@@ -2,7 +2,7 @@ import xlrd
 
 excel = xlrd.open_workbook("layout.xls", formatting_info=True)
 
-sheet = excel.sheet_by_name("Sheet1")
+sheet = excel.sheet_by_name("Components")
 
 with open("pipeline_objects.py", "w") as f:
     imports = """
@@ -30,9 +30,11 @@ class {sheet.cell_value(y1, x1)}Obj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        super().mousePressEvent(event)
         if event.button() == Qt.LeftButton:
             print("clicked from", self)
+        else:
+            super().mousePressEvent(event)
+    
 
 """
         f.write(template)

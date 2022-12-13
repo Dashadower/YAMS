@@ -7,6 +7,8 @@ main:
     sw $t1, 0($sp)
     addi $sp, $sp, -4
     lw $t2, 4($sp)
-    add $t3, $t2, $0
+    #add $t3, $t2, $0
 
     beq $t2, $t1, main
+
+# expected behavior is branch takes and program repeats indefinitely, while $t1 increases

@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 class PCSrcMux(PipelineComponent):
     def __init__(self):
         self.pc_out: int = 0
+        self.mux_input: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -14,14 +15,19 @@ class PCSrcMux(PipelineComponent):
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         # If branch is taken, change to branch target address
         if pipeline_c.ID_BranchEqualAND.value:
+            self.mux_input = 2
             self.pc_out = pipeline_c.ID_BranchPCAdder.value
 
         # If jump, jump to targe address
         elif pipeline_c.ID_Control.Jump:
+            self.mux_input = 1
             self.pc_out = pipeline_c.ID_JaddrCalc.value
 
         else:
+            self.mux_input = 0
             self.pc_out = pipeline_c.IF_PC4Adder.result
+
+        #print("PC MUX is", hex(self.pc_out), self.mux_input)
 
 
 class PCCounter(PipelineComponent):
@@ -31,6 +37,7 @@ class PCCounter(PipelineComponent):
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.ID_HazardDetector.PCWrite == 1:
             self.current_pc = pipeline_c.IF_PCSrcMUX.pc_out
+            #print("Update pc to", hex(self.current_pc))
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass

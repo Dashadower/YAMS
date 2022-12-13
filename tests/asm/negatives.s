@@ -6,7 +6,7 @@ d2:
 .globl main
 .text
 main:
-    la $4, d1
-    la $5, d2
-    lh $6, 2($5)
-    or $2, $0, $0
+    addi $t0, $0, -1
+    sw $t0, 0($gp)
+    lw $t1, 0($gp)
+    sub $t2, $t1, $t0

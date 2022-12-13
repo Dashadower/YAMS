@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Dict
-from .utils import string_numeric_to_decimal, zero_extend_hex_to_word, string_numeric_to_hex, zero_extend_hex, multiple4_geq
+from .utils import zero_extend_hex_to_word, zero_extend_hex, multiple4_geq, zero_extend_binary, decimal2bin, int2_signed_32bit_int, int_to_signed_bits, signed_32bit_int2int
 from collections import defaultdict
 
 if TYPE_CHECKING:
@@ -38,6 +38,7 @@ class Memory:
         """
         Store a single word(4 bytes) into address addr. Follows self.endian
         """
+        data = int(int_to_signed_bits(data), 2)
         data_hex = hex(data)
         assert len(data_hex) <= 10, f"Data size for word must be less or equal to 4 bytes but got data {data_hex}"
         data_hex_word = zero_extend_hex_to_word(data_hex).split("x")[1]  # zero extend to 4 bytes
@@ -64,7 +65,7 @@ class Memory:
             data_hex[byte_index[0]] = hex_byte[0]
             data_hex[byte_index[0] + 1] = hex_byte[1]
 
-        return int("".join(data_hex), 16)
+        return signed_32bit_int2int(int("".join(data_hex), 16))
 
     def load_datasegment(self, data_segment: "DataSegment"):
         self.starting_address = data_segment.starting_address
@@ -105,10 +106,21 @@ class Memory:
 
         return ret
 
-    def print_wordview(self, starting_address: int, n_words = 20):
+    def get_wordview(self, starting_address: int, n_words = 20, representation="hex") -> str:
+        ret = ""
         for n in range(n_words):
             addr = starting_address + n * 4
             value = self.load_word(addr)
-            print(f"{zero_extend_hex_to_word(hex(addr))} - {zero_extend_hex_to_word(hex(value))}\n")
+            if representation == "hex":
+                value = zero_extend_hex_to_word(hex(int2_signed_32bit_int(value)))
+            elif representation == "decimal":
+                value = value
+            elif representation == "binary":
+                value = zero_extend_binary(bin(value)[2:], bits=32)
+            else:
+                raise Exception("Unknown representation", representation)
+            ret += (f"[{zero_extend_hex_to_word(hex(addr))}] : {value}\n")
+
+        return ret
 
 

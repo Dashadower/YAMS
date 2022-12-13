@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from .pipeline_component import PipelineComponent
 from .instructions import Instruction, RFormat, SpecialFormat
+from .utils import zero_extend_binary, zero_extend_hex_to_word, int2_signed_32bit_int, string_numeric_to_hex, int_to_signed_bits
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .pipeline import PipelineCoordinator
@@ -29,20 +30,30 @@ class MainRegister(PipelineComponent):
         if pipeline_c.MEMWB_register.control_RegWrite == 1:
             if pipeline_c.MEMWB_register.RegisterRd == 0:
                 return
-            print(f"wrote {pipeline_c.WB_Mem2RegMUX.value} to ${pipeline_c.MEMWB_register.RegisterRd}")
             self._register[pipeline_c.MEMWB_register.RegisterRd] = pipeline_c.WB_Mem2RegMUX.value
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         self.read_value1 = self._register[pipeline_c.IFID_register.instruction.get_rs()]
         self.read_value2 = self._register[pipeline_c.IFID_register.instruction.get_rt()]
-        print(f"Read registers ${pipeline_c.IFID_register.instruction.get_rs()}:{self.read_value1}, ${pipeline_c.IFID_register.instruction.get_rt()}:{self.read_value2}")
 
+    def repr_hex(self) -> str:
+        ret = ""
+        for index, value in enumerate(self._register):
+            ret += f"0x{index}({register_names[index]}) : {zero_extend_hex_to_word(hex(int2_signed_32bit_int(value)))}\n"
 
+        return ret
+
+    def repr_binary(self) -> str:
+        ret = ""
+        for index, value in enumerate(self._register):
+            ret += f"{index:2}({register_names[index]}) : {int_to_signed_bits(value, n_bits=32)}\n"
+
+        return ret
 
     def __repr__(self) -> str:
         ret = ""
         for index, value in enumerate(self._register):
-            ret += f"{index:2}({register_names[index]}) - {value}\n"
+            ret += f"{index:2}({register_names[index]}) : {value}\n"
 
         return ret
 
@@ -97,6 +108,8 @@ class IDEXREgister(PipelineComponent):
         self.RegisterRt: int = 0
         self.RegisterRd: int = 0
 
+        self.instruction: Instruction = SpecialFormat(0, 0)
+
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
 
         control_out = pipeline_c.ID_ControlZeroMUX
@@ -124,6 +137,8 @@ class IDEXREgister(PipelineComponent):
         self.RegisterRs = pipeline_c.IFID_register.instruction.get_rs()
         self.RegisterRt = pipeline_c.IFID_register.instruction.get_rt()
         self.RegisterRd = pipeline_c.IFID_register.instruction.get_rd()
+
+        self.instruction = pipeline_c.IFID_register.instruction
 
     def __repr__(self) -> str:
         ret = ""
@@ -163,6 +178,8 @@ class EXMEMRegister(PipelineComponent):
 
         self.RegisterRd: int = 0
 
+        self.instruction: Instruction = SpecialFormat(0, 0)
+
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         # WB control signals
         self.control_MemtoReg = pipeline_c.IDEX_register.control_MemtoReg
@@ -184,6 +201,8 @@ class EXMEMRegister(PipelineComponent):
         self.immediate = pipeline_c.IDEX_register.immediate
 
         self.RegisterRd = pipeline_c.EX_RegDstMUX.RegisterRd
+
+        self.instruction = pipeline_c.IDEX_register.instruction
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -213,6 +232,8 @@ class MEMWBRegister(PipelineComponent):
         self.immediate: str = "0"
         self.RegisterRd: int = 0
 
+        self.instruction: Instruction = SpecialFormat(0, 0)
+
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         self.control_MemtoReg = pipeline_c.EXMEM_register.control_MemtoReg
         self.control_RegWrite = pipeline_c.EXMEM_register.control_RegWrite
@@ -222,6 +243,8 @@ class MEMWBRegister(PipelineComponent):
 
         self.immediate = pipeline_c.EXMEM_register.immediate
         self.RegisterRd = pipeline_c.EXMEM_register.RegisterRd
+
+        self.instruction = pipeline_c.EXMEM_register.instruction
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         pass

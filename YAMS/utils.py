@@ -73,3 +73,19 @@ def int_to_signed_bits(number: int, n_bits=32) -> str:
         result = zero_extend_binary(result, n_bits)
 
     return result
+
+# def signed_32bits_to_hex(bin: str, bytes=4) -> str:
+#     assert len(bin) == 32, "Must be a 32-bit length binary number"
+#     if bin[0] == 1:
+#         pad = "1"
+#     else:
+#         pad = "0"
+#
+#     result = hex(signed_bits_to_int(bin))[2:].rjust(bytes * 2,pad)
+#     return "0x" + result
+
+def signed_32bit_int2int(signed: int):
+    return signed_bits_to_int(zero_extend_binary(decimal2bin(signed), bits=32))
+
+def int2_signed_32bit_int(number: int):
+    return int(int_to_signed_bits(number), 2)

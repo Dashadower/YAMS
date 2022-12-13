@@ -53,6 +53,7 @@ class ForwardingUnit(PipelineComponent):
 class ALUSrcMUX(PipelineComponent):
     def __init__(self):
         self.value: int = 0
+        self.mux_input: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
@@ -60,8 +61,10 @@ class ALUSrcMUX(PipelineComponent):
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.IDEX_register.control_ALUSrc == 0:
             self.value = pipeline_c.EX_ForwardBMUX.value
+            self.mux_input = 0
         else:
             self.value = signed_bits_to_int(pipeline_c.IDEX_register.immediate)
+            self.mux_input = 1
 
 
 class ForwardAMUX(PipelineComponent):
@@ -175,17 +178,20 @@ class ALU(PipelineComponent):
         else:
             self.zero = 0
 
-        print(f"ALU: {operand1} @ {operand2} = {self.result}")
+        #print(f"ALU: {operand1} @ {operand2} = {self.result}, operation = {alu_control}")
 
 class RegDstMUX(PipelineComponent):
     def __init__(self):
         self.RegisterRd: int = 0
+        self.mux_input: int = 0
 
     def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
         pass
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         if pipeline_c.IDEX_register.control_RegDst == 0:
+            self.mux_input = 0
             self.RegisterRd = pipeline_c.IDEX_register.RegisterRt
         else:
+            self.mux_input = 1
             self.RegisterRd = pipeline_c.IDEX_register.RegisterRd

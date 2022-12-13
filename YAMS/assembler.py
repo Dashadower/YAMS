@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .parser import TextSegment, DataSegment
-from .utils import multiple4_geq, string_numeric_to_decimal
+from .utils import multiple4_geq, string_numeric_to_decimal, zero_extend_hex_to_word
 from typing import Dict
 import re
 
@@ -209,7 +209,7 @@ class Assembler:
                 # beq address is offset between target and PC + 4. So if branch target is the next instruction, it's 0
                 # and if it's the 2nd instruction after, then it's 4
                 jump_addr = self.instruction_address_table[instruction.arguments[2]]
-                branch_addr = int((jump_addr - (current_instruction_addr + 4)) / 4)
+                branch_addr = (jump_addr - (current_instruction_addr + 4)) // 4
                 new_ts.insert(instruction=instruction.instruction, arguments=[instruction.arguments[0], instruction.arguments[1], str(branch_addr)])
                 current_instruction_addr += 4
 
@@ -252,7 +252,22 @@ class Assembler:
         return new_ts
 
 
+    def repr_instructions(self) -> str:
+        ret = ""
+        current_instruction_addr = self.text_segment.starting_address
+        for instruction in self.text_segment.iter_entries():
+            comment = ""
+            if instruction.label:
+                comment += f"{instruction.label}: "
+            if instruction.assembler_remark:
+                comment += instruction.assembler_remark
 
+            if comment:
+                comment = "# " + comment
+            ret += f"[{zero_extend_hex_to_word(hex(current_instruction_addr))}]     {instruction.instruction} {', '.join(instruction.arguments)}".ljust(50) + comment + "\n"
+            current_instruction_addr += 4
+
+        return ret
 
 
 

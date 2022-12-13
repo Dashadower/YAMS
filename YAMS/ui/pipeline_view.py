@@ -12,7 +12,7 @@ class PipelineView(QWidget):
 
         vertical_splitter = QSplitter(Qt.Vertical)
 
-        top = PipelineScene(vertical_splitter)
+        self.pipeline_scene = PipelineScene(vertical_splitter)
         bottom_right = QGroupBox(vertical_splitter)
         bottom_right.setTitle("bottom_Right")
 
@@ -22,6 +22,10 @@ class PipelineView(QWidget):
         hbox.addWidget(vertical_splitter)
         self.setLayout(hbox)
         self.show()
+
+    def update_view(self, pipeline_c):
+        self.pipeline_scene.update_label_values(pipeline_c)
+
 
 if __name__ == '__main__':
     import sys
