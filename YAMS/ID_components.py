@@ -1,7 +1,7 @@
 from .pipeline_component import PipelineComponent
 from .opcodes import op
 from .instructions import Instruction, RFormat, IFormat, JFormat
-from .utils import decimal2bin, zero_extend_binary, signed_bits_to_int, int_to_signed_bits
+from .utils import decimal2bin, zero_extend_binary, signed_bits_to_int, int_to_signed_bits, zero_extend_hex_to_word
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .pipeline import PipelineCoordinator
@@ -63,6 +63,20 @@ class HazardDetector(PipelineComponent):
                 self.zero_control_signals = 0
                 self.PCWrite = 0
                 self.IFIDWrite = 0
+
+    def get_info(self) -> str:
+        ret = f"""HazardDetector - Hazard Detection
+zero_control_signals: if set to 0, zero all write control signals
+PCWrite: if 0, don't update PC Counter on rising edge
+IFIDWrite: if 0, don't update IF/ID Register on rising edge
+
+Values:
+zero_control_signals = {self.zero_control_signals}
+PCWRite = {self.PCWrite}
+IFIDWrite = {self.IFIDWrite}
+"""
+        return ret
+
 
 class Control(PipelineComponent):
     def __init__(self):
@@ -167,6 +181,22 @@ class Control(PipelineComponent):
             self.Branch = 0
             self.ALUOp = self.ALUOp
 
+    def get_info(self) -> str:
+        ret = f"""Control - Decodes instruction and generates control signals
+
+Values:
+RegDst = {self.RegDst}
+ALUSrc = {self.ALUSrc}
+MemtoReg = {self.MemtoReg}
+RegWrite = {self.RegWrite}
+MemRead = {self.MemRead}
+MemWrite = {self.MemWrite}
+Jump = {self.Jump}
+Branch = {self.Branch}
+ALUOp = {self.ALUOp}
+"""
+        return ret
+
 
 class ControlZeroMUX(PipelineComponent):
     def __init__(self):
@@ -207,6 +237,18 @@ class ControlZeroMUX(PipelineComponent):
             self.ALUOp = pipeline_c.ID_Control.ALUOp
             self.mux_input = 0
 
+    def get_info(self) -> str:
+        ret = f"""ControlZeroMUX - Zeros control signals if Hazard Detector emits signal, or current instruction is NOP
+
+Values:
+mux value = {self.mux_input}
+RegWrite = {self.RegWrite}
+MemWrite = {self.MemWrite}
+MemRead = {self.MemRead}
+"""
+        return ret
+
+
 class ControlZeroSetOR(PipelineComponent):
     def __init__(self):
         self.value: int = 0
@@ -220,6 +262,14 @@ class ControlZeroSetOR(PipelineComponent):
         else:
             self.value = 0
 
+    def get_info(self) -> str:
+        ret = f"""ControlZeroSetOR
+
+Values:
+result = {self.value}
+"""
+        return ret
+
 
 class BranchPCAdder(PipelineComponent):
     def __init__(self):
@@ -230,6 +280,14 @@ class BranchPCAdder(PipelineComponent):
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         self.value = pipeline_c.IFID_register.pc + signed_bits_to_int(pipeline_c.ID_ImmediateSLL2.value)
+
+    def get_info(self) -> str:
+        ret = f"""BranchPCAdder
+
+Values:
+result = {zero_extend_hex_to_word(hex(self.value))}
+"""
+        return ret
 
 
 class ImmediateSLL2(PipelineComponent):
@@ -242,6 +300,13 @@ class ImmediateSLL2(PipelineComponent):
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         self.value = pipeline_c.ID_ImmediateSignExtender.value[2:] + "00"
 
+    def get_info(self) -> str:
+        ret = f"""ImmediateSLL2 - Shift left immediate field
+
+Values:
+result = {self.value}
+"""
+        return ret
 
 class ImmediateSignExtender(PipelineComponent):
     def __init__(self):
@@ -265,8 +330,16 @@ class ImmediateSignExtender(PipelineComponent):
             # zero extend
             self.value = "0" * 16 + immediate
 
+    def get_info(self) -> str:
+        ret = f"""ImmediateSignExtender - Sign/Zero extend immediate field
+
+Values:
+result = {self.value}
+"""
+        return ret
 
 # MainRegister implemented im registers.py
+
 
 class BranchEqualCMP(PipelineComponent):
     def __init__(self):
@@ -284,6 +357,14 @@ class BranchEqualCMP(PipelineComponent):
             self.value = 1
         else:
             self.value = 0
+
+    def get_info(self) -> str:
+        ret = f"""BranchEqualCMP
+
+Values:
+result = {self.value}
+"""
+        return ret
 
 
 class BranchCMPForwardAMUX(PipelineComponent):
@@ -305,6 +386,15 @@ class BranchCMPForwardAMUX(PipelineComponent):
         elif self.mux_input == 2:  # alu result
             self.value = pipeline_c.EXMEM_register.alu_result
 
+    def get_info(self) -> str:
+        ret = f"""BranchCMPForwardAMUX
+
+Values:
+mux value = {self.mux_input}
+output = {self.value}
+"""
+        return ret
+
 
 class BranchCMPForwardBMUX(PipelineComponent):
     def __init__(self):
@@ -324,6 +414,15 @@ class BranchCMPForwardBMUX(PipelineComponent):
             self.value = pipeline_c.WB_Mem2RegMUX.value
         elif self.mux_input == 2:  # alu result
             self.value = pipeline_c.EXMEM_register.alu_result
+
+    def get_info(self) -> str:
+        ret = f"""BranchCMPForwardBMUX
+
+Values:
+mux value = {self.mux_input}
+output = {self.value}
+"""
+        return ret
 
 
 class BranchForwardingUnit(PipelineComponent):
@@ -371,6 +470,15 @@ class BranchForwardingUnit(PipelineComponent):
         pipeline_c.ID_BranchCMPForwardAMUX.set_mux_input(self.ForwardA)
         pipeline_c.ID_BranchCMPForwardBMUX.set_mux_input(self.ForwardB)
 
+    def get_info(self) -> str:
+        ret = f"""BranchForwardingUnit - Forwarding Unit for Branch equal comparer
+
+Values:
+ForwardA = {self.ForwardA}
+ForwardB = {self.ForwardB}
+"""
+        return ret
+
 
 class BranchEqualAND(PipelineComponent):
     def __init__(self):
@@ -388,6 +496,14 @@ class BranchEqualAND(PipelineComponent):
             self.value = 0
             self.IFFlush = 0
 
+    def get_info(self) -> str:
+        ret = f"""BranchEqualAND
+
+Values:
+IFFlush = {self.IFFlush}
+"""
+        return ret
+
 
 class PCUpper4bitSelector(PipelineComponent):
     def __init__(self):
@@ -398,6 +514,14 @@ class PCUpper4bitSelector(PipelineComponent):
 
     def update(self, pipeline_c: "PipelineCoordinator") -> None:
         self.value = int(zero_extend_binary(decimal2bin(pipeline_c.IFID_register.pc), 32)[:4], 2)
+
+    def get_info(self) -> str:
+        ret = f"""PCUpper4bitsSelector - Select upper 4 bits of PC
+
+Values:
+output = {self.value}
+"""
+        return ret
 
 
 class JAddrSLL2(PipelineComponent):
@@ -412,6 +536,14 @@ class JAddrSLL2(PipelineComponent):
         immediate = pipeline_c.IFID_register.instruction.to_binary()[-26:]
         self.value = immediate + "00"
 
+    def get_info(self) -> str:
+        ret = f"""JAddrSLL2 - shift left 2 immediate field for jump target address calculation
+
+Values:
+output = {self.value}
+"""
+        return ret
+
 
 class JaddrCalc(PipelineComponent):
     def __init__(self):
@@ -424,3 +556,11 @@ class JaddrCalc(PipelineComponent):
         pc_4bits = zero_extend_binary(decimal2bin(pipeline_c.ID_PCUpper4bitSelector.value), bits=4)
         jaddr = zero_extend_binary(pipeline_c.ID_JAddrSLL2.value, bits=26)
         self.value = int(f"{pc_4bits}{jaddr}", 2)
+
+    def get_info(self) -> str:
+        ret = f"""JaddrCalc - calculate jump target address
+
+Values:
+output = {zero_extend_hex_to_word(hex(self.value))}
+"""
+        return ret

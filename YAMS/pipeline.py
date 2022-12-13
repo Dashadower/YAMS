@@ -8,7 +8,6 @@ from .WB_components import *
 from .instructions import InstructionMemoryHandler
 from .memory import Memory
 
-
 class PipelineCoordinator:
     def __init__(self, instruction_handler: InstructionMemoryHandler, memory_handler: Memory):
         self.instruction_handler = instruction_handler
@@ -54,15 +53,35 @@ class PipelineCoordinator:
 
         self.WB_Mem2RegMUX: Mem2RegMUX = Mem2RegMUX()
 
+        self.cycles: int = 0
+
+        self.executed_instructions: int = 0
+        self.stage_information = []
+
     def initialize(self):
+        self.executed_instructions = 0
+        self.cycles = 0
+        self.stage_information = []
         self.IF_PCCounter.current_pc = self.instruction_handler.starting_addr
         self.IF_PC4Adder.update(self)
         self.IF_PCSrcMUX.update(self)
         self.IF_InstructionMemory.on_rising_edge(self)
+        self.IF_InstructionMemory.write_stage_data(self)
+
 
     def single_step(self):
+        self.cycles += 1
         self.rising_edge()
         self.update()
+        #self.executed_instructions += 1
+        self.write_stages()
+
+    def write_stages(self):
+        self.IF_InstructionMemory.write_stage_data(self)
+        self.IFID_register.write_stage_data(self)
+        self.IDEX_register.write_stage_data(self)
+        self.EXMEM_register.write_stage_data(self)
+        self.MEMWB_register.write_stage_data(self)
 
     def rising_edge(self):
         # 1. Update main register write

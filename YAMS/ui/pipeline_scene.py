@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from YAMS.pipeline import PipelineCoordinator
 
 class PipelineScene(QGraphicsView):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, pipeline_view=None):
         super().__init__(parent)
-
+        self.pipeline_view = pipeline_view
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
         self.last_position = None
@@ -34,93 +34,96 @@ class PipelineScene(QGraphicsView):
             self._zoom -= 1
         self.scale(factor, factor)
 
+    def clicked_object(self, name):
+        print(name)
+
     def draw(self):
-        self.PCSrcMUX = PCSrcMUXObj(self.object_scale_factor)
+        self.PCSrcMUX = PCSrcMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.PCSrcMUX)
 
-        self.PCCounter = PCCounterObj(self.object_scale_factor)
+        self.PCCounter = PCCounterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.PCCounter)
 
-        self.PC4Adder = PC4AdderObj(self.object_scale_factor)
+        self.PC4Adder = PC4AdderObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.PC4Adder)
 
-        self.InstructionMemory = InstructionMemoryObj(self.object_scale_factor)
+        self.InstructionMemory = InstructionMemoryObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.InstructionMemory)
 
-        self.IFIDRegister = IFIDRegisterObj(self.object_scale_factor)
+        self.IFIDRegister = IFIDRegisterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.IFIDRegister)
 
         ##########
 
-        self.HazardDetector = HazardDetectorObj(self.object_scale_factor)
+        self.HazardDetector = HazardDetectorObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.HazardDetector)
 
-        self.Control = ControlObj(self.object_scale_factor)
+        self.Control = ControlObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.Control)
 
-        self.ControlZeroMUX = ControlZeroMUXObj(self.object_scale_factor)
+        self.ControlZeroMUX = ControlZeroMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ControlZeroMUX)
 
-        self.BranchEqualAnd = BranchEqualANDObj(self.object_scale_factor)
+        self.BranchEqualAnd = BranchEqualANDObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchEqualAnd)
 
-        self.BranchEqualCMP = BranchEqualCMPObj(self.object_scale_factor)
+        self.BranchEqualCMP = BranchEqualCMPObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchEqualCMP)
 
-        self.BranchForwardA = BranchCMPForwardAMUXObj(self.object_scale_factor)
+        self.BranchForwardA = BranchCMPForwardAMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchForwardA)
 
-        self.BranchForwardB = BranchCMPForwardBMUXObj(self.object_scale_factor)
+        self.BranchForwardB = BranchCMPForwardBMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchForwardB)
 
-        self.MainRegister = MainRegisterObj(self.object_scale_factor)
+        self.MainRegister = MainRegisterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.MainRegister)
 
-        self.ImmediateSignExtender = ImmediateSignExtenderObj(self.object_scale_factor)
+        self.ImmediateSignExtender = ImmediateSignExtenderObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ImmediateSignExtender)
 
-        self.BranchPCAdder = BranchPCAdderObj(self.object_scale_factor)
+        self.BranchPCAdder = BranchPCAdderObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchPCAdder)
 
-        self.JAddrCalc = JAddrCalcObj(self.object_scale_factor)
+        self.JAddrCalc = JAddrCalcObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.JAddrCalc)
 
-        self.IDEXRegister = IDEXRegisterObj(self.object_scale_factor)
+        self.IDEXRegister = IDEXRegisterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.IDEXRegister)
 
         ###########
 
-        self.ForwardAMUX = ForwardAMUXObj(self.object_scale_factor)
+        self.ForwardAMUX = ForwardAMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ForwardAMUX)
 
-        self.ForwardBMUX = ForwardBMUXObj(self.object_scale_factor)
+        self.ForwardBMUX = ForwardBMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ForwardBMUX)
 
-        self.ALUSrcMUX = ALUSrcMUXObj(self.object_scale_factor)
+        self.ALUSrcMUX = ALUSrcMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ALUSrcMUX)
 
-        self.ALU = ALUObj(self.object_scale_factor)
+        self.ALU = ALUObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ALU)
 
-        self.ALUControl = ALUControlObj(self.object_scale_factor)
+        self.ALUControl = ALUControlObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ALUControl)
 
-        self.RegDstMUX = RegDstMUXObj(self.object_scale_factor)
+        self.RegDstMUX = RegDstMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.RegDstMUX)
 
-        self.ForwardingUnit = ForwardingUnitObj(self.object_scale_factor)
+        self.ForwardingUnit = ForwardingUnitObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ForwardingUnit)
 
-        self.EXMEMRegister = EXMEMRegisterObj(self.object_scale_factor)
+        self.EXMEMRegister = EXMEMRegisterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.EXMEMRegister)
 
-        self.Memory = MemoryObj(self.object_scale_factor)
+        self.Memory = MemoryObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.Memory)
 
-        self.MEMWBRegister = MEMWBRegisterObj(self.object_scale_factor)
+        self.MEMWBRegister = MEMWBRegisterObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.MEMWBRegister)
 
-        self.MemtoRegMUX = MemtoRegMUXObj(self.object_scale_factor)
+        self.MemtoRegMUX = MemtoRegMUXObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.MemtoRegMUX)
 
         self.draw_lines()

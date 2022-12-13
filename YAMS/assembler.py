@@ -138,14 +138,14 @@ class Assembler:
                 immediate = string_numeric_to_decimal(immediate)  # decimal int of immediate
                 ori_source_register = "$0"
                 if immediate > 0xfff:  # if number is bigger than 0xfff, do lui first
-                    new_ts.insert(instruction="lui", arguments=["$at", f"0x{hex_number_string[0:4]}"])
+                    new_ts.insert(instruction="lui", arguments=["$at", f"0x{hex_number_string[0:4]}"], original_text=instruction.original_text)
                     ori_source_register = "$at"
                     current_instruction_addr += 4
 
                 if (immediate & 0x0000ffff) != 0:
-                    new_ts.insert(instruction="ori", arguments=[target_register, ori_source_register, f"0x{hex_number_string[-4:]}"])
+                    new_ts.insert(instruction="ori", arguments=[target_register, ori_source_register, f"0x{hex_number_string[-4:]}"], original_text=instruction.original_text)
                 else:
-                    new_ts.insert(instruction="or", arguments=[target_register, ori_source_register, "$0"])
+                    new_ts.insert(instruction="or", arguments=[target_register, ori_source_register, "$0"], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             elif instruction.instruction == "la":
@@ -155,17 +155,17 @@ class Assembler:
                 if address in self.data_symbol_table:
                     address = str(self.data_symbol_table[address] + self.data_segment.starting_address)
 
-                new_ts.insert(instruction="li", arguments=[target_register, address])
+                new_ts.insert(instruction="li", arguments=[target_register, address], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             elif instruction.instruction == "nop":
                 # NOP
                 # this is assembled into sll $0, $0, 0
-                new_ts.insert(instruction="sll", arguments=["$0","$0", "0"])
+                new_ts.insert(instruction="sll", arguments=["$0","$0", "0"], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             else:
-                new_ts.insert(instruction=instruction.instruction, arguments=instruction.arguments)
+                new_ts.insert(instruction=instruction.instruction, arguments=instruction.arguments, original_text=instruction.original_text)
                 current_instruction_addr += 4
 
         return new_ts
@@ -191,16 +191,16 @@ class Assembler:
                 # lw/sw with label usage (sw $5, label)
                 # This is assembled into: la, lw/sw -> li, lw/sw -> lui, ori, lw/sw
                 target_register = instruction.arguments[0]
-                new_ts.insert(instruction="la", arguments=["$at", instruction.arguments[1]])
+                new_ts.insert(instruction="la", arguments=["$at", instruction.arguments[1]], original_text=instruction.original_text)
                 current_instruction_addr += 4
-                new_ts.insert(instruction=instruction.instruction, arguments=[target_register, f"0($at)"])
+                new_ts.insert(instruction=instruction.instruction, arguments=[target_register, f"0($at)"], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             elif instruction.instruction == "j" and instruction.arguments[0] in self.instruction_address_table:
                 # j label instruction
                 # Substitute address instead of label
                 jump_addr = hex(int(self.instruction_address_table[instruction.arguments[0]] / 4))
-                new_ts.insert(instruction=instruction.instruction, arguments=[jump_addr])
+                new_ts.insert(instruction=instruction.instruction, arguments=[jump_addr], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             elif instruction.instruction == "beq" and instruction.arguments[2] in self.instruction_address_table:
@@ -210,11 +210,11 @@ class Assembler:
                 # and if it's the 2nd instruction after, then it's 4
                 jump_addr = self.instruction_address_table[instruction.arguments[2]]
                 branch_addr = (jump_addr - (current_instruction_addr + 4)) // 4
-                new_ts.insert(instruction=instruction.instruction, arguments=[instruction.arguments[0], instruction.arguments[1], str(branch_addr)])
+                new_ts.insert(instruction=instruction.instruction, arguments=[instruction.arguments[0], instruction.arguments[1], str(branch_addr)], original_text=instruction.original_text)
                 current_instruction_addr += 4
 
             else:
-                new_ts.insert(instruction=instruction.instruction, arguments=instruction.arguments)
+                new_ts.insert(instruction=instruction.instruction, arguments=instruction.arguments, original_text=instruction.original_text)
                 current_instruction_addr += 4
 
         return new_ts
@@ -246,7 +246,7 @@ class Assembler:
                         assert 0 <= int(register_index) <= 31, f"Error while assembling instruction {instruction} - Register ${register_index} is out of bounds."
                         new_argument_list.append(argument)
 
-            new_ts.insert(instruction=instruction.instruction, arguments=new_argument_list)
+            new_ts.insert(instruction=instruction.instruction, arguments=new_argument_list, original_text=instruction.original_text)
             current_instruction_addr += 4
 
         return new_ts

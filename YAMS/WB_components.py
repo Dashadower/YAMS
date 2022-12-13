@@ -18,3 +18,13 @@ class Mem2RegMUX(PipelineComponent):
         else:
             self.mux_value = 1
             self.value = pipeline_c.MEMWB_register.memory_read_result
+
+    def get_info(self) -> str:
+        ret = f"""Mem2RegMUX
+Register write value comes from ALU result(0) or memory read result(1)
+
+Values:
+mux value = {self.mux_value}
+output = {self.value}
+"""
+        return ret

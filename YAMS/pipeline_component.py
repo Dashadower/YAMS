@@ -19,3 +19,6 @@ class PipelineComponent:
         any external components.
         """
         raise NotImplementedError()
+
+    def get_info(self) -> str:
+        raise NotImplementedError()

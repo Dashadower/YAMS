@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 class Instruction:
     opcode: int
     funct: int
-    name: str = field(default="", init=False)
+    name: str = field(default="nop", init=False)
+    original_instruction: str = field(default="nop", init=False)
 
     def __post_init__(self):
         self.name = self.get_instruction_name()
@@ -119,7 +120,7 @@ class InstructionMemoryHandler:
             else:
                 rd, rs, rt = [int(arg[1:]) for arg in entry.arguments]
                 shamt = 0
-            return RFormat(opcode=opcode, rs=rs, rt=rt, rd=rd, shamt=shamt, funct=funct)
+            ret = RFormat(opcode=opcode, rs=rs, rt=rt, rd=rd, shamt=shamt, funct=funct)
 
         elif entry.instruction in iformat_instructions:
             # IFormat: instruction rt, rs, imm
@@ -145,15 +146,21 @@ class InstructionMemoryHandler:
                 rs = int(entry.arguments[1][1:])
                 immediate = string_numeric_to_decimal(entry.arguments[2])
 
-            return IFormat(opcode=opcode, funct=funct, rs=rs, rt=rt, immediate=immediate)
+            ret = IFormat(opcode=opcode, funct=funct, rs=rs, rt=rt, immediate=immediate)
 
         elif entry.instruction in jformat_instructions:
             # Jformat: instruction imm
             addr = string_numeric_to_decimal(entry.arguments[0])
-            return JFormat(opcode=opcode, funct=funct, addr=addr)
+            ret = JFormat(opcode=opcode, funct=funct, addr=addr)
 
         elif entry.instruction in special_format_instructions:
-            return SpecialFormat(opcode=opcode, funct=funct)
+            ret = SpecialFormat(opcode=opcode, funct=funct)
+
+        else:
+            raise Exception(f"Failed to parse {entry.original_text}: Unknown instruction {entry.instruction}")
+
+        ret.original_instruction = entry.original_text
+        return ret
 
 
     def fetch_instruction(self, addr: int) -> Instruction:

@@ -7,6 +7,7 @@ from YAMS.assembler import Assembler
 from YAMS.instructions import InstructionMemoryHandler
 from YAMS.memory import Memory
 
+
 class MIPSSimulator:
     def __init__(self):
         self.file_path = ""

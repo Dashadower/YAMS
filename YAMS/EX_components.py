@@ -1,6 +1,6 @@
 from .pipeline_component import PipelineComponent
 from typing import TYPE_CHECKING
-from .utils import zero_extend_binary, string_numeric_to_decimal, signed_bits_to_int
+from .utils import zero_extend_binary, decimal2bin, signed_bits_to_int
 if TYPE_CHECKING:
     from .pipeline import PipelineCoordinator
 
@@ -49,6 +49,15 @@ class ForwardingUnit(PipelineComponent):
         pipeline_c.EX_ForwardAMUX.set_mux_input(self.ForwardA)
         pipeline_c.EX_ForwardBMUX.set_mux_input(self.ForwardB)
 
+    def get_info(self) -> str:
+        ret = f"""ForwardingUnit - Forwarding unit for ALU
+
+Values:
+ForwardA = {self.ForwardA}
+ForwardB = {self.ForwardB}
+"""
+        return ret
+
 
 class ALUSrcMUX(PipelineComponent):
     def __init__(self):
@@ -65,6 +74,17 @@ class ALUSrcMUX(PipelineComponent):
         else:
             self.value = signed_bits_to_int(pipeline_c.IDEX_register.immediate)
             self.mux_input = 1
+
+    def get_info(self) -> str:
+        ret = f"""ALUSrcMUX
+Second argument of ALU comes from ForwardB MUX(0) or immediate field(1)
+
+Values:
+mux value = {self.mux_input}
+output = {self.value}
+"""
+        return ret
+
 
 
 class ForwardAMUX(PipelineComponent):
@@ -86,6 +106,16 @@ class ForwardAMUX(PipelineComponent):
         elif self.mux_input == 2:  # alu result
             self.value = pipeline_c.EXMEM_register.alu_result
 
+    def get_info(self) -> str:
+        ret = f"""ForwardAMUX
+Value comes from register read(0), WB memory read(1), or MEM ALU result(2)
+
+Values:
+mux value = {self.mux_input}
+output = {self.value}
+"""
+        return ret
+
 
 class ForwardBMUX(PipelineComponent):
     def __init__(self):
@@ -105,6 +135,16 @@ class ForwardBMUX(PipelineComponent):
             self.value = pipeline_c.WB_Mem2RegMUX.value
         elif self.mux_input == 2:  # alu result
             self.value = pipeline_c.EXMEM_register.alu_result
+
+    def get_info(self) -> str:
+        ret = f"""ForwardBMUX
+Value comes from register read(0), WB memory read(1), or MEM ALU result(2)
+
+Values:
+mux value = {self.mux_input}
+output = {self.value}
+"""
+        return ret
 
 
 class ALUControl(PipelineComponent):
@@ -129,7 +169,6 @@ class ALUControl(PipelineComponent):
             self.control_ALUControl = 6  # subtract
         elif pipeline_c.IDEX_register.control_ALUOp == 2:
             funct_field = pipeline_c.IDEX_register.immediate[-6:]
-            print(funct_field, pipeline_c.IDEX_register.instruction.to_binary()[-16:][-6:])
             if funct_field == "100000":
                 self.control_ALUControl = 2  # add
             elif funct_field == "100010":
@@ -148,6 +187,14 @@ class ALUControl(PipelineComponent):
             self.control_ALUControl = 0
         else:
             raise Exception("Unknown ALUop", pipeline_c.IDEX_register.control_ALUOp)
+
+    def get_info(self) -> str:
+        ret = f"""ALUControl
+
+Values:
+ALUControl = {zero_extend_binary(decimal2bin(self.control_ALUControl), bits=4)}
+"""
+        return ret
 
 
 class ALU(PipelineComponent):
@@ -189,6 +236,16 @@ class ALU(PipelineComponent):
 
         #print(f"ALU: {operand1} @ {operand2} = {self.result}, operation = {alu_control}")
 
+    def get_info(self) -> str:
+        ret = f"""ALU
+
+Values:
+output = {self.result}
+zero = {self.zero}
+"""
+        return ret
+
+
 class RegDstMUX(PipelineComponent):
     def __init__(self):
         self.RegisterRd: int = 0
@@ -204,3 +261,13 @@ class RegDstMUX(PipelineComponent):
         else:
             self.mux_input = 1
             self.RegisterRd = pipeline_c.IDEX_register.RegisterRd
+
+    def get_info(self) -> str:
+        ret = f"""RegDstMUX
+Register write destination is from Rt field(0) or Rd field(1)
+
+Values:
+mux value = {self.mux_input}
+destination = {self.RegisterRd}
+"""
+        return ret

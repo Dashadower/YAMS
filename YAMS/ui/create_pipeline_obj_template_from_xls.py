@@ -18,10 +18,11 @@ from PyQt5.QtCore import Qt
 
         template = f"""
 class {sheet.cell_value(y1, x1)}Obj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int):
+    def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
         super().__init__({x1} * scale_factor, {y1} * scale_factor, {x2-x1} * scale_factor, {y2 - y1} * scale_factor)
-
+        self.pipeline_view = pipeline_view
+        
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
         self.text = QGraphicsSimpleTextItem("{sheet.cell_value(y1, x1)}", self)
@@ -30,8 +31,8 @@ class {sheet.cell_value(y1, x1)}Obj(QGraphicsRectItem):
         self.text.setPos(rect.topLeft())
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            print("clicked from", self)
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
         else:
             super().mousePressEvent(event)
     

@@ -22,6 +22,7 @@ class TextEntry:
     arguments: List[str]
     label: str = field(default=None)
     assembler_remark: str = field(default="")
+    original_text: str = field(default="")
 
     def __str__(self):
         return f"label: {self.label} - {self.instruction} {', '.join(self.arguments)}".ljust(50) + f"{'  # ' + self.assembler_remark if self.assembler_remark else ''}"
@@ -68,11 +69,11 @@ class TextSegment:
         self._current_label = None
         self._current_assembler_remark = ""
 
-    def insert(self, instruction: str, arguments: List[str]):
+    def insert(self, instruction: str, arguments: List[str], original_text: str):
         if not self._current_label:
-            self._entries.append(TextEntry(instruction, arguments, assembler_remark=self._current_assembler_remark))
+            self._entries.append(TextEntry(instruction, arguments, assembler_remark=self._current_assembler_remark, original_text=original_text))
         else:
-            self._entries.append(TextEntry(instruction, arguments, label=self._current_label, assembler_remark=self._current_assembler_remark))
+            self._entries.append(TextEntry(instruction, arguments, label=self._current_label, assembler_remark=self._current_assembler_remark, original_text=original_text))
             self._current_label = None
 
         self._current_assembler_remark = ""
@@ -268,4 +269,4 @@ class Parser:
         else:
             self.text_segment.set_assembler_remark(f"L{line_index}: {line}")
             arguments = [arg.strip() for arg in "".join(tokens[1:]).split(",")]
-            self.text_segment.insert(head, arguments)
+            self.text_segment.insert(head, arguments, line)

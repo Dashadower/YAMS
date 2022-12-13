@@ -20,3 +20,11 @@ class MainMemory(PipelineComponent):
             read_addr = pipeline_c.EXMEM_register.alu_result
             self.read_value = self.memory_manager.load_word(read_addr)
             #print("read address", hex(read_addr), "value is", self.read_value)
+
+    def get_info(self) -> str:
+        ret = f"""MainMemory
+
+Values:
+read value = {self.read_value}
+"""
+        return ret

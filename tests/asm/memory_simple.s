@@ -6,8 +6,8 @@ d2:
 .globl main
 .text
 main:
-    addi $t0, $0, 7
-    sw $t0, 0($gp)
-    addi $t1, $0, 5
+    #addi $t0, $0, 7
+    #sw $t0, 0($gp)
+    #addi $t1, $0, 5
     lw $t2, 0($gp)
     sub $t3, $t2, $t1
