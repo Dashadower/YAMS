@@ -8,6 +8,7 @@ This is a MIPS simulator that implements a subset of the instruction set.
 - add
 - sub
 - and
+- andi
 - or
 - ori
 - slt
