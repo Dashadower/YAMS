@@ -166,8 +166,9 @@ class Control(PipelineComponent):
                 self.ALUOp = 3
             elif instruction_name == "andi":
                 self.ALUOp = 4
-            # elif instruction_name == "lui":
-            #     self.ALUOp = 0
+            elif instruction_name == "lui":
+                self.ALUOp = 0
+                self.ALUSrc = 2
             else:
                 raise Exception("Not implemented instruction", instruction_name)
         elif instruction_name == "j":
@@ -307,6 +308,27 @@ Values:
 result = {self.value}
 """
         return ret
+
+
+class ImmediateSLL16(PipelineComponent):
+    def __init__(self):
+        self.value: str = "0"
+
+    def on_rising_edge(self, pipeline_c: "PipelineCoordinator") -> None:
+        pass
+
+    def update(self, pipeline_c: "PipelineCoordinator") -> None:
+        immediate = pipeline_c.IFID_register.instruction.to_binary()[-16:]
+        self.value = immediate + "0" * 16
+
+    def get_info(self) -> str:
+        ret = f"""ImmediateSLL16 - Shift left immediate field 16 bits for lui instruction
+
+Values:
+result = {self.value}
+"""
+        return ret
+
 
 class ImmediateSignExtender(PipelineComponent):
     def __init__(self):

@@ -31,6 +31,8 @@
   - update: calculate `IF/IDRegister.PC` + `ImmediateSLL2.value`
 - Immediate shift left 2 `ImmediateSLL2`
   - update: calculate `ImmediateSignExtender.value << 2`
+- Immediate shift left 16 `ImmediateSLL16`
+  - update: calculate `ImmediateSignExtender.value << 2` for `lui` instruction
 - Immediate sign extender `ImmediateSignExtender`
   - update: get immediate value from `IF/IDRegister.instruction`
 - Main register `MainRegister`
@@ -81,7 +83,7 @@
 
 ### WB
 - Mem2Reg MUX `Mem2RegMUX`
-  - update: If `MEM/WBRegister.Mem2Reg == 0` set `MEM/WBRegister.ALUResult`, elif `MEM/WBRegister.Mem2Reg == 1` set `Memory.ReadData`
+  - update: If `MEM/WBRegister.Mem2Reg == 0` set `MEM/WBRegister.ALUResult`, elif `MEM/WBRegister.Mem2Reg == 1` set `MEM/WBRegister.ReadData`, elif `MEM/WBRegister.Mem2Reg == 2` set `MEM/WBRegister.ImmediateSLL16`
 
   
 ## Order of updating components

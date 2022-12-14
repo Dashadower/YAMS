@@ -82,6 +82,9 @@ class PipelineScene(QGraphicsView):
         self.ImmediateSignExtender = ImmediateSignExtenderObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.ImmediateSignExtender)
 
+        self.ImmediateSLL16 = ImmediateSLL16Obj(self.object_scale_factor, self.pipeline_view)
+        self.scene.addItem(self.ImmediateSLL16)
+
         self.BranchPCAdder = BranchPCAdderObj(self.object_scale_factor, self.pipeline_view)
         self.scene.addItem(self.BranchPCAdder)
 
@@ -311,6 +314,11 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_line(23, 28, 26, 28, line_pen, True, False)
         self.draw_grid_dot(23, 28)
 
+        # spread i-path -> ImmediateSLL16
+        self.draw_grid_line(24, 28, 24, 29, line_pen, True, True)
+        self.draw_half_gridline(24, 29, line_pen, "right")
+        self.draw_grid_dot(24, 28)
+
         # spread i-path -> IDEXRegister
         # Rt
         self.draw_grid_line(23, 31, 48, 31, line_pen, True, False)
@@ -328,6 +336,9 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_dot(30, 28)
         self.draw_grid_line(30, 28, 30, 14, line_pen, True, True)
         self.draw_grid_line(30, 14, 32, 14, line_pen, True, False)
+
+        # ImmediateSLL16 -> IDEXRegister
+        self.draw_grid_line(27, 30, 48, 30, line_pen, False, False)
 
         # BranchPCAdder -> PCSrcMUX
         self.draw_grid_line(35, 13, 36, 13, line_pen, False, True)
@@ -385,12 +396,18 @@ class PipelineScene(QGraphicsView):
         #IDEXRegister -> ForwardBMUX
         self.draw_grid_line(53, 25, 54, 25, line_pen, False, True)
         self.draw_grid_line(54, 25, 54, 19, line_pen, True, True)
-        self.draw_grid_line(54, 19, 59, 19, line_pen, True, False)
+        self.draw_grid_line(54, 19, 58, 19, line_pen, True, False)
 
         #IDEXREgister -> ALUSrcMUX (immediate)
-        self.draw_grid_line(53, 28, 58, 28, line_pen, False, True)
-        self.draw_grid_line(58, 28, 58, 22, line_pen, True, True)
-        self.draw_grid_line(58, 22, 62, 22, line_pen, True, False)
+        # immediate
+        self.draw_grid_line(53, 28, 61, 28, line_pen, False, True)
+        self.draw_grid_line(61, 28, 61, 21, line_pen, True, True)
+        self.draw_grid_line(61, 21, 62, 21, line_pen, True, False)
+        # immediate sll 16
+        self.draw_grid_line(53, 30, 62, 30, line_pen, False, True)
+        self.draw_grid_line(62, 30, 62, 22, line_pen, True, True)
+        self.draw_half_gridline(62, 22, line_pen, "right")
+        #self.draw_grid_line(62, 30, )
 
         # IDEXREgister -> RegDSTMUX
         # Rt
@@ -408,6 +425,10 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_line(58, 32, 58, 38, line_pen, True, True)
         self.draw_grid_line(58, 38, 63, 38, line_pen, True, False)
 
+        # IDEXRegister -> EXMEMRegister
+        # immediate sll 16 (lui)
+        #self.draw_grid_line(53, 30, 72, 30, line_pen, False, False)
+
         # RegDstMUX -> EXMEMRegister
         self.draw_grid_line(62, 32, 72, 32, line_pen, False, False)
 
@@ -415,12 +436,12 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_line(61, 13, 64, 13, line_pen, False, False)
 
         # ForwardBMUX -> ALUSrcMUX
-        self.draw_grid_line(61, 20, 62, 20, line_pen, False, False)
+        self.draw_grid_line(60, 20, 62, 20, line_pen, False, False)
 
         # ForwardBMUX -> EXMEMRegister
-        self.draw_grid_line(61, 20, 61, 23, line_pen, True, True)
-        self.draw_grid_dot(61, 20)
-        self.draw_grid_line(61, 23, 72, 23, line_pen, True, False)
+        self.draw_grid_line(60, 20, 60, 23, line_pen, True, True)
+        self.draw_grid_dot(60, 20)
+        self.draw_grid_line(60, 23, 72, 23, line_pen, True, False)
 
         # ALUSrcMUX -> ALU
         self.draw_horizontal_gridline(64, 21, line_pen)
@@ -449,7 +470,7 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_dot(56, 40)
         self.draw_grid_line(56, 14, 59, 14, line_pen, True, False)
         # ForwardB
-        self.draw_grid_line(56, 21, 59, 21, line_pen, True, False)
+        self.draw_grid_line(56, 21, 58, 21, line_pen, True, False)
         self.draw_grid_dot(56, 21)
         # Branch mux
         self.draw_grid_line(41, 40, 41, 15, line_pen, True, True)
@@ -464,6 +485,9 @@ class PipelineScene(QGraphicsView):
         self.draw_grid_dot(79, 26)
         # Rd
         self.draw_grid_line(77, 32, 87, 32, line_pen, False, False)
+        # immediate sll 16
+        #self.draw_grid_line(77, 30, 87, 30, line_pen, False, False)
+
 
         # EXMEM -> ForwardingUnit
         self.draw_grid_line(78, 32, 78, 36, line_pen, True, True)
@@ -484,6 +508,11 @@ class PipelineScene(QGraphicsView):
         self.draw_half_gridline(92, 26, line_pen, "left")
         self.draw_grid_line(92, 26, 92, 24, line_pen, True, True)
         self.draw_grid_line(92, 24, 94, 24, line_pen, True, False)
+        # immediate SLL 16 (lui)
+        # self.draw_grid_line(92, 30, 94, 30, line_pen, False, True)
+        # self.draw_grid_line(94, 30, 94, 26, line_pen, True, True)
+        # self.draw_half_gridline(94, 26, line_pen, "right")
+
 
         # MEMWB -> MainRegister
         # Write address
@@ -512,7 +541,7 @@ class PipelineScene(QGraphicsView):
         # FwdA
         self.draw_grid_line(55, 13, 59, 13, line_pen, True, False)
         # FwdB
-        self.draw_grid_line(55, 20, 59, 20, line_pen, True, False)
+        self.draw_grid_line(55, 20, 58, 20, line_pen, True, False)
         self.draw_grid_dot(55, 20)
         # Branch Fwd A
         self.draw_grid_line(40, 44, 40, 14, line_pen, True, True)
@@ -570,7 +599,7 @@ class PipelineScene(QGraphicsView):
 
         self.Immediatevalue_label = QGraphicsSimpleTextItem()
         self.Immediatevalue_label.setBrush(value_label_brush)
-        self.Immediatevalue_label.setPos(self.object_scale_factor * 26, self.object_scale_factor * 27)
+        self.Immediatevalue_label.setPos(self.object_scale_factor * 24, self.object_scale_factor * 27)
         self.Immediatevalue_label.setText("Immediatevalue")
         self.scene.addItem(self.Immediatevalue_label)
 
@@ -579,6 +608,12 @@ class PipelineScene(QGraphicsView):
         self.ImmSignExtendedvalue_label.setPos(self.object_scale_factor * 30, self.object_scale_factor * 29)
         self.ImmSignExtendedvalue_label.setText("ImmSignExtendedvalue")
         self.scene.addItem(self.ImmSignExtendedvalue_label)
+
+        self.ImmediateSLL16value_label = QGraphicsSimpleTextItem()
+        self.ImmediateSLL16value_label.setBrush(value_label_brush)
+        self.ImmediateSLL16value_label.setPos(self.object_scale_factor * 27, self.object_scale_factor * 30)
+        self.ImmediateSLL16value_label.setText("ImmediateSLL16value")
+        self.scene.addItem(self.ImmediateSLL16value_label)
 
         self.JAddrCalcvalue_label = QGraphicsSimpleTextItem()
         self.JAddrCalcvalue_label.setBrush(value_label_brush)
@@ -710,13 +745,13 @@ class PipelineScene(QGraphicsView):
 
         self.ForwardBMUXinput_label = QGraphicsSimpleTextItem()
         self.ForwardBMUXinput_label.setBrush(control_label_brush)
-        self.ForwardBMUXinput_label.setPos(self.object_scale_factor * 60, self.object_scale_factor * 22)
+        self.ForwardBMUXinput_label.setPos(self.object_scale_factor * 59, self.object_scale_factor * 22)
         self.ForwardBMUXinput_label.setText("ForwardBMUXinput")
         self.scene.addItem(self.ForwardBMUXinput_label)
 
         self.ForwardBMUXvalue_label = QGraphicsSimpleTextItem()
         self.ForwardBMUXvalue_label.setBrush(value_label_brush)
-        self.ForwardBMUXvalue_label.setPos(self.object_scale_factor * 61, self.object_scale_factor * 21)
+        self.ForwardBMUXvalue_label.setPos(self.object_scale_factor * 60, self.object_scale_factor * 21)
         self.ForwardBMUXvalue_label.setText("ForwardBMUXvalue")
         self.scene.addItem(self.ForwardBMUXvalue_label)
 
@@ -819,6 +854,8 @@ class PipelineScene(QGraphicsView):
         self.Immediatevalue_label.setText(pipeline_c.IFID_register.instruction.to_binary()[-16:])
 
         self.ImmSignExtendedvalue_label.setText(pipeline_c.ID_ImmediateSignExtender.value)
+
+        self.ImmediateSLL16value_label.setText(pipeline_c.ID_ImmediateSLL16.value)
 
         self.JAddrCalcvalue_label.setText(zero_extend_hex(hex(pipeline_c.ID_JaddrCalc.value), bytes=4))
 

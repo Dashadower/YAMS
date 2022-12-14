@@ -225,7 +225,7 @@ class Parser:
 
         elif head == ".text":
             if n_tokens == 2:  # .data <addr> is specified
-                self.text_segment.starting_address = int(tokens[1].strip())
+                self.text_segment.starting_address = string_numeric_to_decimal(tokens[1].strip())
             self.current_state = self.text_state
 
         elif head == ".globl":
@@ -260,7 +260,7 @@ class Parser:
 
         elif head == ".data":
             if n_tokens == 2:  # .data <addr> is specified
-                self.data_segment.starting_address = int(tokens[1].strip())
+                self.data_segment.starting_address = string_numeric_to_decimal(tokens[1].strip())
             self.current_state = self.data_state
 
         elif head == ".globl":  # global declarations can be ignored for now

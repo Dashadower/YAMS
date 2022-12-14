@@ -1,10 +1,10 @@
 value_label_brush = QBrush(Qt.red)
 
-self.BranchEqualANDvalue_label = QGraphicsSimpleTextItem()
-self.BranchEqualANDvalue_label.setBrush(value_label_brush)
-self.BranchEqualANDvalue_label.setPos(self.object_scale_factor * 46, self.object_scale_factor * 3)
-self.BranchEqualANDvalue_label.setText("BranchEqualANDvalue")
-self.scene.addItem(self.BranchEqualANDvalue_label)
+self.IFFlush_label = QGraphicsSimpleTextItem()
+self.IFFlush_label.setBrush(value_label_brush)
+self.IFFlush_label.setPos(self.object_scale_factor * 46, self.object_scale_factor * 3)
+self.IFFlush_label.setText("IFFlush")
+self.scene.addItem(self.IFFlush_label)
 
 
 self.ControlZeroMUXinput_label = QGraphicsSimpleTextItem()
@@ -12,6 +12,13 @@ self.ControlZeroMUXinput_label.setBrush(value_label_brush)
 self.ControlZeroMUXinput_label.setPos(self.object_scale_factor * 38, self.object_scale_factor * 7)
 self.ControlZeroMUXinput_label.setText("ControlZeroMUXinput")
 self.scene.addItem(self.ControlZeroMUXinput_label)
+
+
+self.BranchControl_label = QGraphicsSimpleTextItem()
+self.BranchControl_label.setBrush(value_label_brush)
+self.BranchControl_label.setPos(self.object_scale_factor * 44, self.object_scale_factor * 7)
+self.BranchControl_label.setText("BranchControl")
+self.scene.addItem(self.BranchControl_label)
 
 
 self.JAddrCalcvalue_label = QGraphicsSimpleTextItem()
@@ -203,6 +210,13 @@ self.MemtoRegMUXinput_label.setText("MemtoRegMUXinput")
 self.scene.addItem(self.MemtoRegMUXinput_label)
 
 
+self.PCSrcMUXinput_label = QGraphicsSimpleTextItem()
+self.PCSrcMUXinput_label.setBrush(value_label_brush)
+self.PCSrcMUXinput_label.setPos(self.object_scale_factor * 4, self.object_scale_factor * 24)
+self.PCSrcMUXinput_label.setText("PCSrcMUXinput")
+self.scene.addItem(self.PCSrcMUXinput_label)
+
+
 self.WriteReg_label = QGraphicsSimpleTextItem()
 self.WriteReg_label.setBrush(value_label_brush)
 self.WriteReg_label.setPos(self.object_scale_factor * 32, self.object_scale_factor * 24)
@@ -266,6 +280,13 @@ self.Instruction_label.setText("Instruction")
 self.scene.addItem(self.Instruction_label)
 
 
+self.Immediatevalue_label = QGraphicsSimpleTextItem()
+self.Immediatevalue_label.setBrush(value_label_brush)
+self.Immediatevalue_label.setPos(self.object_scale_factor * 24, self.object_scale_factor * 27)
+self.Immediatevalue_label.setText("Immediatevalue")
+self.scene.addItem(self.Immediatevalue_label)
+
+
 self.RegWrite_label = QGraphicsSimpleTextItem()
 self.RegWrite_label.setBrush(value_label_brush)
 self.RegWrite_label.setPos(self.object_scale_factor * 35, self.object_scale_factor * 27)
@@ -273,18 +294,18 @@ self.RegWrite_label.setText("RegWrite")
 self.scene.addItem(self.RegWrite_label)
 
 
-self.Immediatevalue_label = QGraphicsSimpleTextItem()
-self.Immediatevalue_label.setBrush(value_label_brush)
-self.Immediatevalue_label.setPos(self.object_scale_factor * 26, self.object_scale_factor * 29)
-self.Immediatevalue_label.setText("Immediatevalue")
-self.scene.addItem(self.Immediatevalue_label)
-
-
 self.ImmSignExtendedvalue_label = QGraphicsSimpleTextItem()
 self.ImmSignExtendedvalue_label.setBrush(value_label_brush)
 self.ImmSignExtendedvalue_label.setPos(self.object_scale_factor * 30, self.object_scale_factor * 29)
 self.ImmSignExtendedvalue_label.setText("ImmSignExtendedvalue")
 self.scene.addItem(self.ImmSignExtendedvalue_label)
+
+
+self.ImmediateSLL16value_label = QGraphicsSimpleTextItem()
+self.ImmediateSLL16value_label.setBrush(value_label_brush)
+self.ImmediateSLL16value_label.setPos(self.object_scale_factor * 27, self.object_scale_factor * 30)
+self.ImmediateSLL16value_label.setText("ImmediateSLL16value")
+self.scene.addItem(self.ImmediateSLL16value_label)
 
 
 self.RegDstMUXvalue_label = QGraphicsSimpleTextItem()

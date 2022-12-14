@@ -131,6 +131,7 @@ class IDEXREgister(PipelineComponent):
         self.read_data1: int = 0
         self.read_data2: int = 0
         self.immediate: str = "0"
+        self.ImmediateSLL16: str = "0"
 
         self.RegisterRs: int = 0
         self.RegisterRt: int = 0
@@ -161,7 +162,8 @@ class IDEXREgister(PipelineComponent):
         self.read_data1 = pipeline_c.ID_MainRegister.read_value1
         self.read_data2 = pipeline_c.ID_MainRegister.read_value2
 
-        self.immediate: str = pipeline_c.ID_ImmediateSignExtender.value
+        self.immediate = pipeline_c.ID_ImmediateSignExtender.value
+        self.ImmediateSLL16 = pipeline_c.ID_ImmediateSLL16.value
 
         self.RegisterRs = pipeline_c.IFID_register.instruction.get_rs()
         self.RegisterRt = pipeline_c.IFID_register.instruction.get_rt()
@@ -192,6 +194,7 @@ class IDEXREgister(PipelineComponent):
         ret += f"read_data1 : {self.read_data1}\n"
         ret += f"read_data2 : {self.read_data2}\n"
         ret += f"immediate : {self.immediate}\n"
+        ret += f"ImmediateSLL16 : {self.ImmediateSLL16}\n"
         ret += f"RegisterRs : {self.RegisterRs}\n"
         ret += f"RegisterRt : {self.RegisterRt}\n"
         ret += f"RegisterRd : {self.RegisterRd}\n"
@@ -217,8 +220,10 @@ Rs: {self.RegisterRs}
 Rt: {self.RegisterRt}
 Rd: {self.RegisterRd}
 Immediate: {self.immediate}
+ImmediateSLL16: {self.ImmediateSLL16}
 """
         return ret
+
 
 class EXMEMRegister(PipelineComponent):
     def __init__(self):
@@ -235,6 +240,7 @@ class EXMEMRegister(PipelineComponent):
         self.read_data2: int = 0
 
         self.immediate: str = "0"
+        self.ImmediateSLL16: str = "0"
 
         self.RegisterRd: int = 0
 
@@ -260,6 +266,7 @@ class EXMEMRegister(PipelineComponent):
         self.read_data2 = pipeline_c.EX_ForwardBMUX.value
 
         self.immediate = pipeline_c.IDEX_register.immediate
+        self.ImmediateSLL16 = pipeline_c.IDEX_register.ImmediateSLL16
 
         self.RegisterRd = pipeline_c.EX_RegDstMUX.RegisterRd
 
@@ -283,6 +290,7 @@ class EXMEMRegister(PipelineComponent):
         ret += f"alu_result : {self.alu_result}\n"
         ret += f"read_data2 : {self.read_data2}\n"
         ret += f"immediate : {self.immediate}\n"
+        ret += f"ImmediateSLL16: {self.ImmediateSLL16}\n"
         ret += f"RegisterRd : {self.RegisterRd}\n"
         return ret
 
@@ -300,6 +308,7 @@ ALU result = {self.alu_result}
 Register read data 2 = {self.read_data2}
 
 Immediate: {self.immediate}
+ImmediateSLL16: {self.ImmediateSLL16}
 Rd: {self.RegisterRd}
 """
         return ret
@@ -314,6 +323,7 @@ class MEMWBRegister(PipelineComponent):
         self.alu_result: int = 0
 
         self.immediate: str = "0"
+        self.ImmediateSLL16: str = "0"
         self.RegisterRd: int = 0
 
         self.instruction: Instruction = SpecialFormat(0, 0)
@@ -327,6 +337,7 @@ class MEMWBRegister(PipelineComponent):
         self.alu_result = pipeline_c.EXMEM_register.alu_result
 
         self.immediate = pipeline_c.EXMEM_register.immediate
+        self.ImmediateSLL16 = pipeline_c.EXMEM_register.ImmediateSLL16
         self.RegisterRd = pipeline_c.EXMEM_register.RegisterRd
 
         self.instruction = pipeline_c.EXMEM_register.instruction
@@ -347,6 +358,7 @@ class MEMWBRegister(PipelineComponent):
         ret += f"memory_read_result : {self.memory_read_result}\n"
         ret += f"alu_result : {self.alu_result}\n"
         ret += f"immediate : {self.immediate}\n"
+        ret += f"ImmediateSLL16 : {self.ImmediateSLL16}\n"
         ret += f"RegisterRd : {self.RegisterRd}\n"
         return ret
 
@@ -359,6 +371,7 @@ MemtoReg = {self.control_MemtoReg}
 Memory read result = {self.memory_read_result}
 
 Immediate: {self.immediate}
+ImmediateSLL16: {self.ImmediateSLL16}
 Rd: {self.RegisterRd}
 """
         return ret

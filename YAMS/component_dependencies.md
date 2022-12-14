@@ -35,6 +35,7 @@ Implies that A is dependent on B and thus `B.update()` must be called before `A.
   - ID_ImmediateSLL2
 - ID_ImmediateSLL2
   - ID_ImmediateSignExtender
+- ID_ImmediateSLL16
 - ID_ImmediateSignExtender
 - ID_BranchEqualCMP
   - ID_MainRegister

@@ -3,15 +3,15 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 
-class ALUSrcMUXObj(QGraphicsRectItem):
+class BranchEqualANDObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(63 * scale_factor, 20 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        super().__init__(46 * scale_factor, 4 * scale_factor, 2 * scale_factor, 3 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ALUSrcMUX", self)
+        self.text = QGraphicsSimpleTextItem("BranchEqualAND", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -24,15 +24,15 @@ class ALUSrcMUXObj(QGraphicsRectItem):
     
 
 
-class JAddrCalcObj(QGraphicsRectItem):
+class InstructionMemoryObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(28 * scale_factor, 10 * scale_factor, 2 * scale_factor, 2 * scale_factor)
+        super().__init__(13 * scale_factor, 19 * scale_factor, 4 * scale_factor, 8 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("JAddrCalc", self)
+        self.text = QGraphicsSimpleTextItem("InstructionMemory", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -45,15 +45,15 @@ class JAddrCalcObj(QGraphicsRectItem):
     
 
 
-class IDEXRegisterObj(QGraphicsRectItem):
+class IFIDRegisterObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(49 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
+        super().__init__(18 * scale_factor, 12 * scale_factor, 4 * scale_factor, 23 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("IDEXRegister", self)
+        self.text = QGraphicsSimpleTextItem("IFIDRegister", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -66,15 +66,15 @@ class IDEXRegisterObj(QGraphicsRectItem):
     
 
 
-class ControlObj(QGraphicsRectItem):
+class RegDstMUXObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(24 * scale_factor, 6 * scale_factor, 3 * scale_factor, 3 * scale_factor)
+        super().__init__(61 * scale_factor, 31 * scale_factor, 1 * scale_factor, 3 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("Control", self)
+        self.text = QGraphicsSimpleTextItem("RegDstMUX", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -87,15 +87,15 @@ class ControlObj(QGraphicsRectItem):
     
 
 
-class ForwardAMUXObj(QGraphicsRectItem):
+class HazardDetectorObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(60 * scale_factor, 12 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        super().__init__(30 * scale_factor, 3 * scale_factor, 4 * scale_factor, 3 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ForwardAMUX", self)
+        self.text = QGraphicsSimpleTextItem("HazardDetector", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -108,15 +108,15 @@ class ForwardAMUXObj(QGraphicsRectItem):
     
 
 
-class ForwardBMUXObj(QGraphicsRectItem):
+class ImmediateSignExtenderObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(60 * scale_factor, 19 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        super().__init__(27 * scale_factor, 27 * scale_factor, 3 * scale_factor, 2 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ForwardBMUX", self)
+        self.text = QGraphicsSimpleTextItem("ImmediateSignExtender", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -129,204 +129,15 @@ class ForwardBMUXObj(QGraphicsRectItem):
     
 
 
-class MainRegisterObj(QGraphicsRectItem):
+class ImmediateSLL16Obj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(33 * scale_factor, 16 * scale_factor, 5 * scale_factor, 11 * scale_factor)
+        super().__init__(25 * scale_factor, 29 * scale_factor, 2 * scale_factor, 2 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("MainRegister", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class ControlZeroMUXObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(38 * scale_factor, 8 * scale_factor, 1 * scale_factor, 3 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ControlZeroMUX", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class BranchCMPForwardAMUXObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(43 * scale_factor, 13 * scale_factor, 1 * scale_factor, 3 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("BranchCMPForwardAMUX", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class BranchPCAdderObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(33 * scale_factor, 12 * scale_factor, 2 * scale_factor, 3 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("BranchPCAdder", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class MemtoRegMUXObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(95 * scale_factor, 24 * scale_factor, 1 * scale_factor, 3 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("MemtoRegMUX", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class ALUControlObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(65 * scale_factor, 26 * scale_factor, 3 * scale_factor, 3 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ALUControl", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class EXMEMRegisterObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(73 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("EXMEMRegister", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class MEMWBRegisterObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(88 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("MEMWBRegister", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class ALUObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(65 * scale_factor, 13 * scale_factor, 5 * scale_factor, 9 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ALU", self)
-        rect = self.text.boundingRect()
-        rect.moveCenter(self.boundingRect().center())
-        self.text.setPos(rect.topLeft())
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self.pipeline_view:
-            self.pipeline_view.clicked_object(self.__class__.__name__)
-        else:
-            super().mousePressEvent(event)
-    
-
-
-class MemoryObj(QGraphicsRectItem):
-    def __init__(self, scale_factor: int, pipeline_view):
-        # x y w h
-        super().__init__(81 * scale_factor, 14 * scale_factor, 5 * scale_factor, 11 * scale_factor)
-        self.pipeline_view = pipeline_view
-        
-        pen = QPen(Qt.black, 2)
-        self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("Memory", self)
+        self.text = QGraphicsSimpleTextItem("ImmediateSLL16", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -465,15 +276,15 @@ class ForwardingUnitObj(QGraphicsRectItem):
     
 
 
-class BranchEqualANDObj(QGraphicsRectItem):
+class MemtoRegMUXObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(46 * scale_factor, 4 * scale_factor, 2 * scale_factor, 3 * scale_factor)
+        super().__init__(95 * scale_factor, 24 * scale_factor, 1 * scale_factor, 3 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("BranchEqualAND", self)
+        self.text = QGraphicsSimpleTextItem("MemtoRegMUX", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -486,15 +297,15 @@ class BranchEqualANDObj(QGraphicsRectItem):
     
 
 
-class InstructionMemoryObj(QGraphicsRectItem):
+class ALUControlObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(13 * scale_factor, 19 * scale_factor, 4 * scale_factor, 8 * scale_factor)
+        super().__init__(65 * scale_factor, 26 * scale_factor, 3 * scale_factor, 3 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("InstructionMemory", self)
+        self.text = QGraphicsSimpleTextItem("ALUControl", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -507,15 +318,15 @@ class InstructionMemoryObj(QGraphicsRectItem):
     
 
 
-class IFIDRegisterObj(QGraphicsRectItem):
+class EXMEMRegisterObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(18 * scale_factor, 12 * scale_factor, 4 * scale_factor, 23 * scale_factor)
+        super().__init__(73 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("IFIDRegister", self)
+        self.text = QGraphicsSimpleTextItem("EXMEMRegister", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -528,15 +339,15 @@ class IFIDRegisterObj(QGraphicsRectItem):
     
 
 
-class ImmediateSignExtenderObj(QGraphicsRectItem):
+class MEMWBRegisterObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(27 * scale_factor, 28 * scale_factor, 3 * scale_factor, 2 * scale_factor)
+        super().__init__(88 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("ImmediateSignExtender", self)
+        self.text = QGraphicsSimpleTextItem("MEMWBRegister", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -549,15 +360,15 @@ class ImmediateSignExtenderObj(QGraphicsRectItem):
     
 
 
-class RegDstMUXObj(QGraphicsRectItem):
+class ALUObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(61 * scale_factor, 31 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        super().__init__(65 * scale_factor, 13 * scale_factor, 5 * scale_factor, 9 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("RegDstMUX", self)
+        self.text = QGraphicsSimpleTextItem("ALU", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())
@@ -570,15 +381,225 @@ class RegDstMUXObj(QGraphicsRectItem):
     
 
 
-class HazardDetectorObj(QGraphicsRectItem):
+class MemoryObj(QGraphicsRectItem):
     def __init__(self, scale_factor: int, pipeline_view):
         # x y w h
-        super().__init__(30 * scale_factor, 3 * scale_factor, 4 * scale_factor, 3 * scale_factor)
+        super().__init__(81 * scale_factor, 14 * scale_factor, 5 * scale_factor, 11 * scale_factor)
         self.pipeline_view = pipeline_view
         
         pen = QPen(Qt.black, 2)
         self.setPen(pen)
-        self.text = QGraphicsSimpleTextItem("HazardDetector", self)
+        self.text = QGraphicsSimpleTextItem("Memory", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class ALUSrcMUXObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(63 * scale_factor, 20 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("ALUSrcMUX", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class JAddrCalcObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(28 * scale_factor, 10 * scale_factor, 2 * scale_factor, 2 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("JAddrCalc", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class IDEXRegisterObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(49 * scale_factor, 9 * scale_factor, 4 * scale_factor, 26 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("IDEXRegister", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class ControlObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(24 * scale_factor, 6 * scale_factor, 3 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("Control", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class ForwardAMUXObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(60 * scale_factor, 12 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("ForwardAMUX", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class ForwardBMUXObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(59 * scale_factor, 19 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("ForwardBMUX", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class MainRegisterObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(33 * scale_factor, 16 * scale_factor, 5 * scale_factor, 11 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("MainRegister", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class ControlZeroMUXObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(38 * scale_factor, 8 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("ControlZeroMUX", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class BranchCMPForwardAMUXObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(43 * scale_factor, 13 * scale_factor, 1 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("BranchCMPForwardAMUX", self)
+        rect = self.text.boundingRect()
+        rect.moveCenter(self.boundingRect().center())
+        self.text.setPos(rect.topLeft())
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self.pipeline_view:
+            self.pipeline_view.clicked_object(self.__class__.__name__)
+        else:
+            super().mousePressEvent(event)
+    
+
+
+class BranchPCAdderObj(QGraphicsRectItem):
+    def __init__(self, scale_factor: int, pipeline_view):
+        # x y w h
+        super().__init__(33 * scale_factor, 12 * scale_factor, 2 * scale_factor, 3 * scale_factor)
+        self.pipeline_view = pipeline_view
+        
+        pen = QPen(Qt.black, 2)
+        self.setPen(pen)
+        self.text = QGraphicsSimpleTextItem("BranchPCAdder", self)
         rect = self.text.boundingRect()
         rect.moveCenter(self.boundingRect().center())
         self.text.setPos(rect.topLeft())

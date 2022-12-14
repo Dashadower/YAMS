@@ -1,4 +1,5 @@
 from .pipeline_component import PipelineComponent
+from .utils import signed_bits_to_int
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .pipeline import PipelineCoordinator
@@ -15,9 +16,10 @@ class Mem2RegMUX(PipelineComponent):
         if pipeline_c.MEMWB_register.control_MemtoReg == 0:
             self.mux_value = 0
             self.value = pipeline_c.MEMWB_register.alu_result
-        else:
+        elif pipeline_c.MEMWB_register.control_MemtoReg == 1:
             self.mux_value = 1
             self.value = pipeline_c.MEMWB_register.memory_read_result
+
 
     def get_info(self) -> str:
         ret = f"""Mem2RegMUX

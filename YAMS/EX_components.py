@@ -71,13 +71,17 @@ class ALUSrcMUX(PipelineComponent):
         if pipeline_c.IDEX_register.control_ALUSrc == 0:
             self.value = pipeline_c.EX_ForwardBMUX.value
             self.mux_input = 0
-        else:
+        elif pipeline_c.IDEX_register.control_ALUSrc == 1:
             self.value = signed_bits_to_int(pipeline_c.IDEX_register.immediate)
             self.mux_input = 1
+        else:
+            self.value = signed_bits_to_int(pipeline_c.IDEX_register.ImmediateSLL16)
+            self.mux_input = 1
+
 
     def get_info(self) -> str:
         ret = f"""ALUSrcMUX
-Second argument of ALU comes from ForwardB MUX(0) or immediate field(1)
+Second argument of ALU comes from ForwardB MUX(0), immediate field(1), or ImmediateSLL16 field(2)
 
 Values:
 mux value = {self.mux_input}

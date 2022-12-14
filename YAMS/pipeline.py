@@ -26,6 +26,7 @@ class PipelineCoordinator:
         self.ID_BranchPCAdder: BranchPCAdder = BranchPCAdder()
         self.ID_ImmediateSLL2: ImmediateSLL2 = ImmediateSLL2()
         self.ID_ImmediateSignExtender: ImmediateSignExtender = ImmediateSignExtender()
+        self.ID_ImmediateSLL16: ImmediateSLL16 = ImmediateSLL16()
 
         self.ID_MainRegister: MainRegister = MainRegister(sp=0x7ffffe40, gp=0x10008000)
 
@@ -117,6 +118,7 @@ class PipelineCoordinator:
         # Update branch and jump target calculation
         self.ID_ImmediateSignExtender.update(self)
         self.ID_ImmediateSLL2.update(self)
+        self.ID_ImmediateSLL16.update(self)
         self.ID_BranchForwardingUnit.update(self)
         self.ID_BranchCMPForwardAMUX.update(self)
         self.ID_BranchCMPForwardBMUX.update(self)

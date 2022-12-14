@@ -95,7 +95,7 @@ class Assembler:
         # It will continually run the assembly process until a fixed point is reached, which then it will terminate
         current_text_segment = self.text_segment
         n_iterations = 0
-        max_iterations = len(list(current_text_segment.iter_entries()))
+        max_iterations = len(list(current_text_segment.iter_entries())) * 3
         while True:
             if n_iterations > max_iterations:
                 raise Exception(f"Assembly failed - failed to reached a fixed point even after running {max_iterations} times. Please check that your code is correct.")
@@ -138,14 +138,14 @@ class Assembler:
                 immediate = string_numeric_to_decimal(immediate)  # decimal int of immediate
                 ori_source_register = "$0"
                 if immediate > 0xfff:  # if number is bigger than 0xfff, do lui first
-                    new_ts.insert(instruction="lui", arguments=["$at", f"0x{hex_number_string[0:4]}"], original_text=instruction.original_text)
+                    new_ts.insert(instruction="lui", arguments=["$at", f"0x{hex_number_string[0:4]}"], original_text=f"lui $1, {f'0x{hex_number_string[0:4]}'}")
                     ori_source_register = "$at"
                     current_instruction_addr += 4
 
                 if (immediate & 0x0000ffff) != 0:
-                    new_ts.insert(instruction="ori", arguments=[target_register, ori_source_register, f"0x{hex_number_string[-4:]}"], original_text=instruction.original_text)
+                    new_ts.insert(instruction="ori", arguments=[target_register, ori_source_register, f"0x{hex_number_string[-4:]}"], original_text=f"ori {target_register}, {ori_source_register}, {f'0x{hex_number_string[-4:]}'}")
                 else:
-                    new_ts.insert(instruction="or", arguments=[target_register, ori_source_register, "$0"], original_text=instruction.original_text)
+                    new_ts.insert(instruction="or", arguments=[target_register, ori_source_register, "$0"], original_text=f"ori {target_register}, {ori_source_register}, {f'0x{hex_number_string[-4:]}'}")
                 current_instruction_addr += 4
 
             elif instruction.instruction == "la":
@@ -161,7 +161,7 @@ class Assembler:
             elif instruction.instruction == "nop":
                 # NOP
                 # this is assembled into sll $0, $0, 0
-                new_ts.insert(instruction="sll", arguments=["$0","$0", "0"], original_text=instruction.original_text)
+                new_ts.insert(instruction="sll", arguments=["$0","$0", "0"], original_text="sll $0, $0, 0")
                 current_instruction_addr += 4
 
             else:
