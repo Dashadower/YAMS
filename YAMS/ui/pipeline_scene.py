@@ -891,7 +891,7 @@ class PipelineScene(QGraphicsView):
 
         self.BranchEqualCMPvalue_label.setText(str(pipeline_c.ID_BranchEqualCMP.value))
 
-        self.IFFlush_label.setText(f"IFFlush: {pipeline_c.ID_BranchEqualAND.value}")
+        self.IFFlush_label.setText(f"IFFlush: {pipeline_c.ID_BranchEqualAND.IFFlush}")
 
         self.BranchControl_label.setText(f"Branch: {pipeline_c.ID_Control.Branch}")
 
