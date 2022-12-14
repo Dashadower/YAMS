@@ -514,6 +514,9 @@ class BranchEqualAND(PipelineComponent):
         if pipeline_c.ID_Control.Branch and pipeline_c.ID_BranchEqualCMP.value:
             self.value = 1
             self.IFFlush = 1
+        elif pipeline_c.ID_Control.Jump:
+            self.value = 1
+            self.IFFlush = 1
         else:
             self.value = 0
             self.IFFlush = 0
