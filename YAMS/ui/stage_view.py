@@ -150,6 +150,8 @@ class StageViewFrozen(QTableView):
     def updateFrozenTableGeometry(self):
         frozen_width = sum([self.frozenTableView.columnWidth(col) for col in range(self._fixed_col_count)])
         frozen_height = sum([self.frozenTableView.rowHeight(row) for row in range(self._fixed_row_count)])
+        self.frozenTableView.verticalHeader().setVisible(False)
+        self.verticalHeader().setVisible(False)
         if self.verticalHeader().isVisible():
             self.frozenTableView.setGeometry(self.verticalHeader().width() + self.frameWidth(),
                                              self.frameWidth(), frozen_width,
@@ -158,6 +160,7 @@ class StageViewFrozen(QTableView):
             self.frozenTableView.setGeometry(self.frameWidth(),
                                              self.frameWidth(), frozen_width,
                                              self.viewport().height() + self.horizontalHeader().height())
+
 
 
 class StageView(QTableView):
