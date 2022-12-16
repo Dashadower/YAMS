@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 import sys
 from YAMS.ui.pipeline_objects import *
 from typing import TYPE_CHECKING
-from YAMS.utils import zero_extend_hex, zero_extend_binary, int_to_signed_bits
+from YAMS.utils import zero_extend_hex, zero_extend_binary, int_to_signed_bits, zero_extend_hex_to_word
 if TYPE_CHECKING:
     from YAMS.pipeline import PipelineCoordinator
 

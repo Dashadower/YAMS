@@ -75,11 +75,10 @@ class IFIDRegister(PipelineComponent):
             self.pc = pipeline_c.IF_PC4Adder.result
             self.instruction = pipeline_c.IF_InstructionMemory.current_instruction
             self.stage_write_index = pipeline_c.IF_InstructionMemory.stage_write_index
+            if pipeline_c.ID_BranchEqualAND.IFFlush == 1:
+                self.instruction = RFormat(opcode=0, funct=0, rs=0, rt=0, rd=0, shamt=0)
         else:  # if IF/IDWrite is 0, keep the contents of the register
             pass
-
-        if pipeline_c.ID_BranchEqualAND.IFFlush == 1:
-            self.instruction = RFormat(opcode=0, funct=0, rs=0, rt=0, rd=0, shamt=0)
 
     def write_stage_data(self, pipeline_c: "PipelineCoordinator") -> None:
         self.continue_stage = True

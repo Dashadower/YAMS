@@ -72,6 +72,7 @@ class PipelineCoordinator:
 
     def single_step(self):
         self.cycles += 1
+        print(f"CC {self.cycles} #########")
         self.rising_edge()
         self.update()
         #self.executed_instructions += 1

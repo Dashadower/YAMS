@@ -5,7 +5,7 @@ from YAMS.ui.register_view import RegisterView
 from YAMS.ui.memory_view import MemoryView
 from YAMS.ui.pipeline_view import PipelineView
 from YAMS.ui.instruction_view import InstructionView
-from YAMS.ui.stage_view import StageView
+from YAMS.ui.stage_view import StageView, StageViewFrozen
 from YAMS.utils import zero_extend_hex_to_word
 
 
@@ -49,7 +49,8 @@ class MainWindow(QWidget):
         self.pipeline_view = PipelineView(simulator=self.simulator)
         self.memory_view = MemoryView(simulator=self.simulator)
         self.instruction_view = InstructionView()
-        self.stage_view = StageView()
+        # self.stage_view = StageView()
+        self.stage_view = StageViewFrozen()
         tabs.addTab(self.pipeline_view, "Pipeline")
         tabs.addTab(self.memory_view, "Memory")
         tabs.addTab(self.instruction_view, "Instruction")
