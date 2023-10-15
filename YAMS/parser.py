@@ -232,7 +232,7 @@ class Parser:
             pass
 
         else:
-            allowed_data_types = [".ascii", ".asciiz", ".double", ".float", ".word"]
+            allowed_data_types = [".ascii", ".asciiz", ".double", ".float", ".word", ".byte"]
             if head not in allowed_data_types:
                 raise Exception(f"Assembler directive '{head}' used within data segment, is unknown.")
 
