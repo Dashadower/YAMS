@@ -3,6 +3,9 @@
 
 This is a MIPS simulator that implements a subset of the instruction set.
 
+!(YAMS Main UI)[https://raw.githubusercontent.com/Dashadower/YAMS/main/images/yams_main.png]
+!(YAMS STAGE UI)[https://raw.githubusercontent.com/Dashadower/YAMS/main/images/yams_stage.png]
+
 ## Supported instructions
 - addi
 - add
